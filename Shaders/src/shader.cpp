@@ -1,6 +1,6 @@
 #include <shader.hpp>
 
-/* UTILITY FUNCTIONS */
+/* ============================ UTILITY FUNCTIONS ============================*/
 std::string readShaderSourceFile(const std::string& shaderPath)
 {
     std::ifstream shaderFile;
@@ -74,6 +74,7 @@ bool linkShaders(unsigned int& vertexShaderId,unsigned int& fragmentShaderId,uns
 
     return true;
 }
+/* ========================================================================== */
 
 Shader::Shader(const std::string& vertexShaderPath,const std::string& fragmentShaderPath)
 {
