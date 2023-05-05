@@ -150,6 +150,8 @@ int main(int argc, char *argv[])
         processInput(window);
 
         /* RENDERING COMMANDS */
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         /* EVENTS AND BUFFER SWAP */
