@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
     glEnableVertexAttribArray(1);
     /*===================================================================================================================*/
 
-    Shader shaders("../shaderSources/vertexShaders/triangle.vs","../shaderSources/fragmentShaders/orange.fs");
+    Shader shaders("../shaderSources/vertexShaders/colorPos.vs","../shaderSources/fragmentShaders/colorPos.fs");
     shaders.use();
 
     /* RENDER LOOP */
@@ -98,8 +98,11 @@ int main(int argc, char *argv[])
 
         float time = glfwGetTime();
         float green = sin(time)/2.0f + 0.5f;
+        
         int vertexColorLocation = glGetUniformLocation(shaders.getProgramId(),"myColorUnif");
         glUniform4f(vertexColorLocation,0.0f,green,0.0f,1.0f);
+
+        shaders.setFloat("offset",green);
 
         glDrawArrays(GL_TRIANGLES, 0, 3);
         /* EVENTS AND BUFFER SWAP */
