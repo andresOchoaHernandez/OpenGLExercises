@@ -110,3 +110,8 @@ void Shader::use()
 {
     glUseProgram(_programId);
 }
+
+unsigned int Shader::getProgramId()
+{
+    return _programId;
+}
