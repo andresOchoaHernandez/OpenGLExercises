@@ -50,58 +50,87 @@ int main(int argc, char *argv[])
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
-
+    
     glViewport(0, 0, 800, 600);
 
     /* REGISTERING CALLBACK */
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    /*============================================= SETTING UP THE TRIANGLE =============================================*/
-    float vertices[] = {
-        /* VERTEX COORDS */   /* VERTEX COLORS */
-        -0.5f, -0.5f, 0.0f,   1.0f,0.0f,0.0f,
-         0.5f, -0.5f, 0.0f,   0.0f,1.0f,0.0f,
-         0.0f,  0.5f, 0.0f,   0.0f,0.0f,1.0f,
-    };
-
-    /* VERTEX ARRAY OBJECT CREATION*/
-    unsigned int VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
-
-    /* VERTEX BUFFER OBJECT CREATION */
-    unsigned int VBO;
-    glGenBuffers(1, &VBO);
-    /* THE GL_ARRAY_BUFFER TARGET IS NOW BOUND TO VBO */
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    /* COPY THE DATA INTO THE CURRENT ARRAY BUFFER */
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    /* POSITION ATTRIB */
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    
-    /* COLOR ATTRIBUTE */
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3*sizeof(float)));
-    glEnableVertexAttribArray(1);
-    /*===================================================================================================================*/
-
     /* ===================================================== TEXTURE SET UP ============================================ */
+    
+    /* CREATING TEXTURE OBJECT */
+    unsigned int texture;
+    glGenTextures(1,&texture);
+    glBindTexture(GL_TEXTURE_2D,texture);
+
+    /* SETTING MINIFYING AND MAGNIFYING FILTERS AND MIPMAPS */
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+
     /* LOADING IMAGE */
     int width,height,nrChannels;
     unsigned char* data = stbi_load("../resources/tex/container.jpg",&width,&height,&nrChannels,0);
 
-    stbi_image_free(data);
+    if(!data)
+    {
+        std::cout << "TEXTURE::ERROR::COULDN'T LOAD IMAGE" << std::endl;
+        return -1;
+    }
 
-    float textureCoordinates[] = {
-        0.0f,0.0f,
-        1.0f,0.0f,
-        0.5f,1.0f
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    stbi_image_free(data);
+    /* DEFINING RECTANGLE COORDINATES */
+    float vertices[] = {
+        /* positions */       /* colors */         /* texture coords */ 
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, 
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f     
     };
+
+    unsigned int indexes[] = {
+        0,1,3,
+        1,2,3
+    };
+
+    /* VERTEX ARRAY OBJECT */
+    unsigned int VAO;
+    glGenBuffers(1,&VAO);
+    glBindVertexArray(VAO);
+
+    /* VERTEX BUFFER OBJECT */
+    unsigned int VBO;
+    glGenBuffers(1,&VBO);
+    glBindBuffer(GL_ARRAY_BUFFER,VBO);
+    glBufferData(GL_ARRAY_BUFFER,sizeof(vertices),vertices,GL_STATIC_DRAW);
+
+    /* ELEMENT BUFFER OBJECT */
+    unsigned int EBO;
+    glGenBuffers(1,&EBO);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,sizeof(indexes),indexes,GL_STATIC_DRAW);
+
+    /* DEFINING PROPERTIES */
+    
+    /* VERTEX COORDINATES */
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,8*sizeof(float),(void*)0);
+    glEnableVertexAttribArray(0);
+
+    /* VERTEX COLORS */
+    glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,8*sizeof(float),(void*)(3*sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    /* VERTEX TEXTURE COORDS */
+    glVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE,8*sizeof(float),(void*)(6*sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     /*===================================================================================================================*/
 
-    Shader shaders("../shaderSources/vertexShaders/colorPos.vs","../shaderSources/fragmentShaders/colorPos.fs");
+    Shader shaders("../shaderSources/vertexShaders/triangle.vs","../shaderSources/fragmentShaders/green.fs");
     shaders.use();
 
     /* RENDER LOOP */
@@ -114,15 +143,10 @@ int main(int argc, char *argv[])
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        float time = glfwGetTime();
-        float green = sin(time)/2.0f + 0.5f;
-        
-        int vertexColorLocation = glGetUniformLocation(shaders.getProgramId(),"myColorUnif");
-        glUniform4f(vertexColorLocation,0.0f,green,0.0f,1.0f);
-
-        shaders.setFloat("offset",green);
-
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        shaders.use();
+        glBindVertexArray(VAO);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
         /* EVENTS AND BUFFER SWAP */
         glfwSwapBuffers(window);
         glfwPollEvents();    
