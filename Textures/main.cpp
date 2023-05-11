@@ -8,10 +8,15 @@
 #include <shader.hpp>
 
 /* HANDLING INPUT */
-void processInput(GLFWwindow *window)
+void processInput(GLFWwindow *window,float &alpha)
 {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+    if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS && alpha < 1.0)
+        alpha += 0.1;
+    if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS && alpha > 0.0)
+        alpha -= 0.1;
 }
 
 /* THIS CALLBACK FUNCTION WILL BE TRIGGERED WHEN THE USER RESIZES THE WINDOW. IT WILL SET THE NEW GL VIEWPORT */
@@ -58,10 +63,10 @@ int main(int argc, char *argv[])
     /*============================================= SETTING UP THE RECTANGLE =============================================*/
     float vertices[] = {
         /* positions */       /* colors */         /* texture coords */ 
-         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   
-         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   2.0f, 2.0f,   
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   2.0f, 0.0f,   
         -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, 
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f       
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 2.0f       
     };
     unsigned int indices[] = {
         0, 1, 3,   /* first triangle  */
@@ -110,8 +115,8 @@ int main(int argc, char *argv[])
     glBindTexture(GL_TEXTURE_2D,texture1);
 
     /* SETTING MINIFYING AND MAGNIFYING FILTERS AND MIPMAPS */
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
 
@@ -162,11 +167,13 @@ int main(int argc, char *argv[])
     shaders.setInt("vTexture1",0);
     shaders.setInt("vTexture2",1);
 
+    float alpha = 0.5;
+
     /* RENDER LOOP */
     while(!glfwWindowShouldClose(window))
     {
         /* INPUTS */
-        processInput(window);
+        processInput(window,alpha);
 
         /* RENDERING COMMANDS */
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -176,6 +183,7 @@ int main(int argc, char *argv[])
         glBindTexture(GL_TEXTURE_2D, texture1);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
+        shaders.setFloat("alpha",alpha);
 
         shaders.use();
         glBindVertexArray(VAO);
