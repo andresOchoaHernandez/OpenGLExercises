@@ -6,6 +6,8 @@
 #include <stb_image.hpp>
 
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include <shader.hpp>
 
@@ -163,11 +165,20 @@ int main(int argc, char *argv[])
     stbi_image_free(data);
     /*====================================================================================================================*/
 
+    /*============================================ DEFINING ROTATIONS ====================================================*/
+    glm::mat4 transformation = glm::mat4(1.0f);
+    transformation = glm::rotate(transformation,glm::radians(90.0f),glm::vec3(0.0f,0.0f,1.0f));
+    transformation = glm::scale(transformation,glm::vec3(0.5,0.5,0.5));
+
+    /*====================================================================================================================*/
     Shader shaders("../shaderSources/vertexShaders/triangle.vs","../shaderSources/fragmentShaders/textures.fs");
     shaders.use();
 
     shaders.setInt("vTexture1",0);
     shaders.setInt("vTexture2",1);
+
+    unsigned int unifLocation = glGetUniformLocation(shaders.getProgramId(),"transform");
+    glUniformMatrix4fv(unifLocation, 1, GL_FALSE, glm::value_ptr(transformation));
 
     float alpha = 0.5;
 
@@ -177,6 +188,12 @@ int main(int argc, char *argv[])
         /* INPUTS */
         processInput(window,alpha);
 
+        /* ROTATION */
+        transformation = glm::mat4(1.0f);
+        transformation = glm::translate(transformation, glm::vec3(0.5f, -0.5f, 0.0f));
+        transformation = glm::rotate(transformation, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+        glUniformMatrix4fv(unifLocation, 1, GL_FALSE, glm::value_ptr(transformation));
+        
         /* RENDERING COMMANDS */
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT);
