@@ -57,21 +57,37 @@ int main(int argc, char *argv[])
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     /*============================================= SETTING UP THE RECTANGLE =============================================*/
+
     float vertices[] = {
-        /* first downer rectangle */   
-         1.0f, 1.0f, 0.0f,
-         1.0f,-1.0f, 0.0f,
-        -1.0f,-1.0f, 0.0f,
-        -1.0f, 1.0f, 0.0f,
-        /* second upper rectangle */   
-         1.0f, 1.0f, 1.0f,
-         1.0f,-1.0f, 1.0f,
-        -1.0f,-1.0f, 1.0f,
-        -1.0f, 1.0f, 1.0f,     
+           
+         1.0f, 0.0f, -1.0f,
+         1.0f, 0.0f,  1.0f,
+        -1.0f, 0.0f,  1.0f,
+        -1.0f, 0.0f, -1.0f,
+           
+         1.0f, 1.0f, -1.0f,
+         1.0f, 1.0f,  1.0f,
+        -1.0f, 1.0f,  1.0f,
+        -1.0f, 1.0f, -1.0f,     
     };
     unsigned int indices[] = {
-        0, 1, 3,   /* first triangle  */
-        1, 2, 3,   /* second triangle */
+        0, 3, 2,
+        2, 1, 0,
+
+        7, 2, 3,
+        6, 2, 7,
+        
+        0, 1, 4,
+        1, 5, 4,
+        
+        3, 0, 4,
+        7, 3, 4,
+        
+        7, 4, 5,
+        7, 5, 6,
+        
+        6, 5, 1,
+        1, 2, 6,
     };
 
     /* VERTEX ARRAY OBJECT */
@@ -99,11 +115,30 @@ int main(int argc, char *argv[])
     glEnableVertexAttribArray(0);
 
     /*============================================ TRANSFORMATIONS ======================================================*/
+
+    /* object to world transformation */
+    glm::mat4 worldTransformation = glm::mat4(1.0f);
+    worldTransformation = glm::translate(worldTransformation,glm::vec3(1.0f,1.0f,1.0f)); 
     
+    /* world to view transformation */    
+    glm::mat4 viewTransformation = glm::mat4(1.0f);
+    viewTransformation = glm::rotate(viewTransformation,glm::radians(0.0f),glm::vec3(0.0f,-10.0f,0.0f));
+
+    /* view to clip transformation */
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
     /*===================================================================================================================*/
     Shader shaders("../shaderSources/vertexShaders/cube.vs","../shaderSources/fragmentShaders/orange.fs");
     shaders.use();
+
+    unsigned int worldLocation = glGetUniformLocation(shaders.getProgramId(),"world");
+    glUniformMatrix4fv(worldLocation, 1, GL_FALSE, glm::value_ptr(worldTransformation));
+
+    unsigned int viewLocation = glGetUniformLocation(shaders.getProgramId(),"view");
+    glUniformMatrix4fv(viewLocation, 1, GL_FALSE, glm::value_ptr(viewTransformation));
+
+    unsigned int projectionLocation = glGetUniformLocation(shaders.getProgramId(),"projection");
+    glUniformMatrix4fv(projectionLocation, 1, GL_FALSE, glm::value_ptr(projection));
 
     /* RENDER LOOP */
     while(!glfwWindowShouldClose(window))
@@ -116,7 +151,7 @@ int main(int argc, char *argv[])
         glClear(GL_COLOR_BUFFER_BIT);
 
         glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES,6*6, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES,36, GL_UNSIGNED_INT, 0);
 
         /* EVENTS AND BUFFER SWAP */
         glfwSwapBuffers(window);
