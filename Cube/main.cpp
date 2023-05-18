@@ -11,11 +11,21 @@
 
 #include <shader.hpp>
 
-/* HANDLING INPUT */
-void processInput(GLFWwindow *window)
+/* HANDLING KEYBOARD INPUT */
+void processInput(GLFWwindow *window,glm::vec3& cameraPos,glm::vec3& cameraFront,glm::vec3& cameraUp)
 {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+    const float cameraSpeed = 0.05f;
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        cameraPos += cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        cameraPos -= cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 }
 
 /* THIS CALLBACK FUNCTION WILL BE TRIGGERED WHEN THE USER RESIZES THE WINDOW. IT WILL SET THE NEW GL VIEWPORT */
@@ -54,11 +64,14 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    /* DISABLE CURSOR AND CAPTURE ITS MOVEMENT */
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
     glViewport(0, 0, 800, 600);
 
-    /* REGISTERING CALLBACK */
+    /* REGISTERING CALLBACKS */
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
+    
     /*============================================= SETTING UP THE RECTANGLE =============================================*/
     float vertices[] = {
         /* positions */       /* colors */   
@@ -121,37 +134,49 @@ int main(int argc, char *argv[])
     glEnableVertexAttribArray(1);
 
     /*===================================================================================================================*/
-
     Shader shaders("../shaderSources/vertexShaders/triangle.vs","../shaderSources/fragmentShaders/textures.fs");
     shaders.use();
 
-    /*========================================= TRANSFORMATIONS =========================================================*/
-    glm::mat4 modelToWorld = glm::rotate(glm::mat4(1.0f),glm::radians(0.0f),glm::vec3(1.0f,0.0f,0.0f)) + glm::translate(glm::mat4(1.0f),glm::vec3(0.0f,0.0f,0.f));
-    glm::mat4 worldToView  = glm::rotate(glm::mat4(1.0f),glm::radians(-90.0f),glm::vec3(1.0f,1.0f,0.0f)) + glm::translate(glm::mat4(1.0f),glm::vec3(0.0f,0.0f,-6.0f));
-    glm::mat4 viewToClip   = glm::perspective(glm::radians(45.0f), 800.0f/600.0f, 0.1f, 100.0f);
+    float pitch = -10.0f;
+    float yaw   = -90.0f;
 
-    unsigned int modelLoc = glGetUniformLocation(shaders.getProgramId(),"model");
-    glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelToWorld));
+    glm::vec3 direction;
+    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+    direction.y = sin(glm::radians(pitch));
+    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
 
-    unsigned int worldLoc = glGetUniformLocation(shaders.getProgramId(),"view");
-    glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(worldToView));
-    
-    unsigned int clipLoc = glGetUniformLocation(shaders.getProgramId(),"clip");
-    glUniformMatrix4fv(clipLoc, 1, GL_FALSE, glm::value_ptr(viewToClip));
-
-    /*===================================================================================================================*/
-
+    glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  6.0f);
+    glm::vec3 cameraFront = glm::normalize(direction);
+    glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
 
     /* RENDER LOOP */
     while(!glfwWindowShouldClose(window))
     {
         /* INPUTS */
-        processInput(window);
-
+        processInput(window,cameraPos,cameraFront,cameraUp);
+        
         /* RENDERING COMMANDS */
         glEnable(GL_DEPTH_TEST); 
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        
+        /*========================================= CAMERA & TRANSFORMATIONS ================================================*/
+        glm::mat4 modelToWorld = glm::rotate(glm::mat4(1.0f),glm::radians(0.0f),glm::vec3(1.0f,0.0f,0.0f)) + glm::translate(glm::mat4(1.0f),glm::vec3(0.0f,0.0f,0.f));
+
+        unsigned int modelLoc = glGetUniformLocation(shaders.getProgramId(),"model");
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelToWorld));
+
+        glm::mat4 worldToView = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+
+        unsigned int worldLoc = glGetUniformLocation(shaders.getProgramId(),"view");
+        glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(worldToView));
+
+        glm::mat4 viewToClip   = glm::perspective(glm::radians(45.0f), 800.0f/600.0f, 0.1f, 100.0f);
+
+        unsigned int clipLoc = glGetUniformLocation(shaders.getProgramId(),"clip");
+        glUniformMatrix4fv(clipLoc, 1, GL_FALSE, glm::value_ptr(viewToClip));
+        /*===================================================================================================================*/
+        
         shaders.use();
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES,36, GL_UNSIGNED_INT, 0);
