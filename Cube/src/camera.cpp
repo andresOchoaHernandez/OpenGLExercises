@@ -1,21 +1,17 @@
 #include <camera.hpp>
 
-Camera::Camera(float pitch,float yaw,glm::vec3 position,glm::vec3 upVersor,float speed):
+Camera::Camera(float pitch,float yaw,glm::vec3 position,glm::vec3 direction,glm::vec3 upVersor,float speed):
 cameraPitch{pitch},
 cameraYaw{cameraYaw},
 cameraPosition{position},
+direction{direction},
 cameraUpVersor{upVersor},
 cameraSpeed{speed}
 {}
 
 glm::mat4 Camera::getWorldToViewTransformationMatrix()
 {
-    glm::vec3 direction = glm::vec3(
-        cos(glm::radians(cameraYaw)) * cos(glm::radians(cameraPitch)),
-        sin(glm::radians(cameraPitch)),
-        sin(glm::radians(cameraYaw)) * cos(glm::radians(cameraPitch))
-    );
-    return glm::lookAt(cameraPosition, cameraPosition + glm::normalize(direction), cameraUpVersor);
+    return glm::lookAt(cameraPosition, cameraPosition + direction, cameraUpVersor);
 }
 
 void Camera::setPitch(float pitch)
@@ -34,16 +30,25 @@ void Camera::setUpVersor(glm::vec3 upVersor)
 {
     cameraUpVersor = upVersor;
 }
+void Camera::setCameraSpeed(float speed)
+{
+    cameraSpeed = speed;
+}
 
-void Camera::updatePitch(float deltaPitch)
+void Camera::moveForward()
 {
-    cameraPitch += deltaPitch;
+    cameraPosition += cameraSpeed * direction;
 }
-void Camera::updateYaw(float deltaYaw)
+void Camera::moveBack()
 {
-    cameraYaw += deltaYaw;
+    cameraPosition -= cameraSpeed * direction;
 }
-void Camera::updatePosition(glm::vec3 deltaPosition)
+void Camera::moveRigth()
 {
-    cameraPosition += cameraSpeed * deltaPosition;
+    cameraPosition += glm::normalize(glm::cross(direction, cameraUpVersor)) * cameraSpeed;
 }
+void Camera::moveLeft()
+{
+    cameraPosition -= glm::normalize(glm::cross(direction, cameraUpVersor)) * cameraSpeed;
+}
+//direction{glm::normalize(glm::vec3(cos(glm::radians(cameraYaw)) * cos(glm::radians(cameraPitch)),sin(glm::radians(cameraPitch)),sin(glm::radians(cameraYaw)) * cos(glm::radians(cameraPitch))))}

@@ -13,20 +13,18 @@
 #include <camera.hpp>
 
 /* HANDLING KEYBOARD INPUT */
-void processInput(GLFWwindow *window,Camera&)
+void processInput(GLFWwindow *window,Camera& camera)
 {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-
-    const float cameraSpeed = 0.05f;
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        cameraPos += cameraSpeed * cameraFront;
+        camera.moveForward();
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        cameraPos -= cameraSpeed * cameraFront;
+        camera.moveBack();
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        camera.moveLeft();
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+        camera.moveRigth();
 }
 
 /* THIS CALLBACK FUNCTION WILL BE TRIGGERED WHEN THE USER RESIZES THE WINDOW. IT WILL SET THE NEW GL VIEWPORT */
@@ -137,24 +135,8 @@ int main(int argc, char *argv[])
     /*===================================================================================================================*/
     Shader shaders("../shaderSources/vertexShaders/triangle.vs","../shaderSources/fragmentShaders/textures.fs");
     shaders.use();
-
     
-
-    /*
-    float pitch =   0.0f;
-    float yaw   = -90.0f;
-
-    glm::vec3 direction;
-    direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    direction.y = sin(glm::radians(pitch));
-    direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-
-    glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  6.0f);
-    glm::vec3 cameraFront = glm::normalize(direction);
-    glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);*/
-
-    
-    Camera camera = Camera(0.0f,-90.0f,glm::vec3(0.0f,0.0f,6.0f),glm::vec3(0.0f,1.0f,0.0f));
+    Camera camera = Camera(0.0f,0.0f,glm::vec3(0.0f,0.0f,6.0f),glm::vec3(0.0f,0.0f,-1.0f),glm::vec3(0.0f,1.0f,0.0f),0.2f);
 
     /* RENDER LOOP */
     while(!glfwWindowShouldClose(window))
@@ -173,7 +155,7 @@ int main(int argc, char *argv[])
         unsigned int modelLoc = glGetUniformLocation(shaders.getProgramId(),"model");
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelToWorld));
 
-        glm::mat4 worldToView = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+        glm::mat4 worldToView = camera.getWorldToViewTransformationMatrix();
 
         unsigned int worldLoc = glGetUniformLocation(shaders.getProgramId(),"view");
         glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(worldToView));
