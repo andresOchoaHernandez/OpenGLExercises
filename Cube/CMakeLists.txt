@@ -21,6 +21,9 @@ target_sources(
     cube
     PUBLIC  ${PROJECT_SOURCE_DIR}/include/shader.hpp
     PRIVATE ${PROJECT_SOURCE_DIR}/src/shader.cpp
+
+    PUBLIC  ${PROJECT_SOURCE_DIR}/include/camera.hpp
+    PRIVATE ${PROJECT_SOURCE_DIR}/src/camera.cpp
 )
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/glad)

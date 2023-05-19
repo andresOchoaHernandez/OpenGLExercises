@@ -10,9 +10,10 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <shader.hpp>
+#include <camera.hpp>
 
 /* HANDLING KEYBOARD INPUT */
-void processInput(GLFWwindow *window,glm::vec3& cameraPos,glm::vec3& cameraFront,glm::vec3& cameraUp)
+void processInput(GLFWwindow *window,Camera&)
 {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
@@ -137,6 +138,9 @@ int main(int argc, char *argv[])
     Shader shaders("../shaderSources/vertexShaders/triangle.vs","../shaderSources/fragmentShaders/textures.fs");
     shaders.use();
 
+    
+
+    /*
     float pitch =   0.0f;
     float yaw   = -90.0f;
 
@@ -147,13 +151,16 @@ int main(int argc, char *argv[])
 
     glm::vec3 cameraPos   = glm::vec3(0.0f, 0.0f,  6.0f);
     glm::vec3 cameraFront = glm::normalize(direction);
-    glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);
+    glm::vec3 cameraUp    = glm::vec3(0.0f, 1.0f,  0.0f);*/
+
+    
+    Camera camera = Camera(0.0f,-90.0f,glm::vec3(0.0f,0.0f,6.0f),glm::vec3(0.0f,1.0f,0.0f));
 
     /* RENDER LOOP */
     while(!glfwWindowShouldClose(window))
     {
         /* INPUTS */
-        processInput(window,cameraPos,cameraFront,cameraUp);
+        processInput(window,camera);
         
         /* RENDERING COMMANDS */
         glEnable(GL_DEPTH_TEST); 
