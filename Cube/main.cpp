@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
     Shader shaders("../shaderSources/vertexShaders/triangle.vs","../shaderSources/fragmentShaders/textures.fs");
     shaders.use();
 
-    float pitch = -10.0f;
+    float pitch =   0.0f;
     float yaw   = -90.0f;
 
     glm::vec3 direction;
