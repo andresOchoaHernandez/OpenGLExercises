@@ -12,7 +12,7 @@
 #include <shader.hpp>
 #include <camera.hpp>
 
-Camera camera = Camera(0.0f,0.0f,glm::vec3(0.0f,0.0f,6.0f),glm::vec3(0.0f,0.0f,-1.0f),glm::vec3(0.0f,1.0f,0.0f),0.2f,0.1f);
+Camera camera = Camera(0.0f,0.0f,glm::vec3(0.0f,0.0f,0.0f),glm::vec3(0.0f,0.0f,-1.0f),glm::vec3(0.0f,1.0f,0.0f),glm::vec3(0.0f,1.0f,0.0f),0.2f,0.1f);
 
 bool firstMouse = true;
 float lastX = 400, lastY = 300;

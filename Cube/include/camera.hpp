@@ -10,15 +10,18 @@ class Camera
     float cameraYaw;
 
     glm::vec3 cameraPosition;
-    glm::vec3 cameraUpVersor;
     glm::vec3 direction;
+
+    glm::vec3 cameraUpVersor;
+    glm::vec3 cameraRigthVersor;
+    glm::vec3 worldUpVersor;
 
     float cameraSpeed;
 
     float cameraSensitivity;
 
     public:
-        Camera(float pitch,float yaw,glm::vec3 position,glm::vec3 direction,glm::vec3 upVersor,float speed,float sensitivity);
+        Camera(float pitch,float yaw,glm::vec3 position,glm::vec3 direction,glm::vec3 upVersor, glm::vec3 worldUpVersor,float speed,float sensitivity);
 
         glm::mat4 getWorldToViewTransformationMatrix();
 
@@ -34,4 +37,7 @@ class Camera
         void moveBack();
         void moveRigth();
         void moveLeft();
+    
+    private:
+        void updateDirection();
 };
