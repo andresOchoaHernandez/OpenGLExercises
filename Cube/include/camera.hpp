@@ -15,8 +15,10 @@ class Camera
 
     float cameraSpeed;
 
+    float cameraSensitivity;
+
     public:
-        Camera(float pitch,float yaw,glm::vec3 position,glm::vec3 direction,glm::vec3 upVersor,float speed);
+        Camera(float pitch,float yaw,glm::vec3 position,glm::vec3 direction,glm::vec3 upVersor,float speed,float sensitivity);
 
         glm::mat4 getWorldToViewTransformationMatrix();
 
@@ -25,6 +27,8 @@ class Camera
         void setPosition(glm::vec3 position);
         void setUpVersor(glm::vec3 upVersor);
         void setCameraSpeed(float speed);
+
+        void updatePitchAndYaw(float xoffset, float yoffset);
 
         void moveForward();
         void moveBack();

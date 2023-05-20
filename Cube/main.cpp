@@ -12,8 +12,13 @@
 #include <shader.hpp>
 #include <camera.hpp>
 
+Camera camera = Camera(0.0f,0.0f,glm::vec3(0.0f,0.0f,6.0f),glm::vec3(0.0f,0.0f,-1.0f),glm::vec3(0.0f,1.0f,0.0f),0.2f,0.1f);
+
+bool firstMouse = true;
+float lastX = 400, lastY = 300;
+
 /* HANDLING KEYBOARD INPUT */
-void processInput(GLFWwindow *window,Camera& camera)
+void processInput(GLFWwindow *window)
 {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
@@ -26,6 +31,24 @@ void processInput(GLFWwindow *window,Camera& camera)
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.moveRigth();
 }
+
+/* HANDLING MOUSE INPUT */
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+    if (firstMouse)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        firstMouse = false;
+    }
+  
+    float xoffset = xpos - lastX;
+    float yoffset = lastY - ypos; 
+    lastX = xpos;
+    lastY = ypos;
+
+    camera.updatePitchAndYaw(xoffset,yoffset);
+}  
 
 /* THIS CALLBACK FUNCTION WILL BE TRIGGERED WHEN THE USER RESIZES THE WINDOW. IT WILL SET THE NEW GL VIEWPORT */
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -70,7 +93,7 @@ int main(int argc, char *argv[])
 
     /* REGISTERING CALLBACKS */
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    
+    glfwSetCursorPosCallback(window, mouse_callback); 
     /*============================================= SETTING UP THE RECTANGLE =============================================*/
     float vertices[] = {
         /* positions */       /* colors */   
@@ -135,14 +158,12 @@ int main(int argc, char *argv[])
     /*===================================================================================================================*/
     Shader shaders("../shaderSources/vertexShaders/triangle.vs","../shaderSources/fragmentShaders/textures.fs");
     shaders.use();
-    
-    Camera camera = Camera(0.0f,0.0f,glm::vec3(0.0f,0.0f,6.0f),glm::vec3(0.0f,0.0f,-1.0f),glm::vec3(0.0f,1.0f,0.0f),0.2f);
 
     /* RENDER LOOP */
     while(!glfwWindowShouldClose(window))
     {
         /* INPUTS */
-        processInput(window,camera);
+        processInput(window);
         
         /* RENDERING COMMANDS */
         glEnable(GL_DEPTH_TEST); 
