@@ -6,30 +6,27 @@
 
 class Camera
 {
-    float cameraPitch;
-    float cameraYaw;
-
-    glm::vec3 cameraPosition;
-    glm::vec3 direction;
-
-    glm::vec3 cameraUpVersor;
-    glm::vec3 cameraRigthVersor;
+    /* WORLD ATTRIBUTES */
     glm::vec3 worldUpVersor;
 
-    float cameraSpeed;
+    /* CAMERA ATTRIBUTES */
+    float camPitch;
+    float camYaw;
 
-    float cameraSensitivity;
+    glm::vec3 camPosition;
+    glm::vec3 camDirection;
+
+    glm::vec3 camUpVersor;
+    glm::vec3 camRigthVersor;
+
+    /* MOVEMENT ATTRIBUTES */
+    float camSpeed;
+    float camSensitivity;
 
     public:
-        Camera(float pitch,float yaw,glm::vec3 position,glm::vec3 direction,glm::vec3 upVersor, glm::vec3 worldUpVersor,float speed,float sensitivity);
+        Camera();
 
         glm::mat4 getWorldToViewTransformationMatrix();
-
-        void setPitch(float pitch);
-        void setYaw(float yaw);
-        void setPosition(glm::vec3 position);
-        void setUpVersor(glm::vec3 upVersor);
-        void setCameraSpeed(float speed);
 
         void updatePitchAndYaw(float xoffset, float yoffset);
 
