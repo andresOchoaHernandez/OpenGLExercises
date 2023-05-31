@@ -24,6 +24,9 @@ target_sources(
 
     PUBLIC  ${PROJECT_SOURCE_DIR}/include/camera.hpp
     PRIVATE ${PROJECT_SOURCE_DIR}/src/camera.cpp
+
+    PUBLIC  ${PROJECT_SOURCE_DIR}/include/ligth.hpp
+    PRIVATE ${PROJECT_SOURCE_DIR}/src/ligth.cpp
 )
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/glad)

@@ -11,6 +11,7 @@
 
 #include <shader.hpp>
 #include <camera.hpp>
+#include <ligth.hpp>
 
 Camera camera = Camera();
 
@@ -164,10 +165,10 @@ int main(int argc, char *argv[])
     shaders.use();
 
     /*================================================== LIGTH ==========================================================*/
-    glm::vec3 ligthColor = glm::vec3(1.0f,1.0f,1.0f);
+    
+    Ligth ligth(glm::vec3(1.0f,1.0f,1.0f),glm::vec3(3.0f,1.0f,0.0f));
 
-    unsigned int lightColorLoc = glGetUniformLocation(shaders.getProgramId(),"ligthColor");
-    glUniform3fv(lightColorLoc, 1, glm::value_ptr(ligthColor));
+    ligth.setColorUniform(shaders.getProgramId(),"ligthColor");
 
     float ambientStrength = 0.1f;
     shaders.setFloat("ambientStrength",ambientStrength);
@@ -205,17 +206,12 @@ int main(int argc, char *argv[])
         unsigned int clipLoc = glGetUniformLocation(shaders.getProgramId(),"clip");
         glUniformMatrix4fv(clipLoc, 1, GL_FALSE, glm::value_ptr(viewToClip));
         /*===================================================================================================================*/
-        
-        unsigned int cameraPositionLoc = glGetUniformLocation(shaders.getProgramId(),"camPosition");
-        glUniform3fv(cameraPositionLoc, 1, glm::value_ptr(camera.getCamPosition()));
 
         if(ticks%10 == 0)
-            ligthPosition = glm::rotate(glm::mat4(1.0f),glm::radians(25.0f),glm::vec3(0.0f,1.0f,0.0f)) * glm::vec4(ligthPosition,1.0f);
-
+            ligth.setPosition(glm::rotate(glm::mat4(1.0f),glm::radians(25.0f),glm::vec3(0.0f,1.0f,0.0f)) * glm::vec4(ligth.getPosition(),1.0f));
         ticks++;
 
-        unsigned int lightPosLoc = glGetUniformLocation(shaders.getProgramId(),"ligthPosition");
-        glUniform3fv(lightPosLoc, 1, glm::value_ptr(ligthPosition));
+        ligth.setPositionUniform(shaders.getProgramId(),"ligthPosition");
 
         shaders.use();
         glBindVertexArray(VAO);
