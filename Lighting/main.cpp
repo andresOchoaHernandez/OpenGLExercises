@@ -97,15 +97,15 @@ int main(int argc, char *argv[])
     /*============================================= SETTING UP THE RECTANGLE =============================================*/
     float vertices[] = {
         /* positions */       /* normals */      /* colors */   
-         0.5f,  0.5f, 0.0f,   0.0f, 0.0f,-1.0f,  1.0f, 0.0f, 0.0f,      
-         0.5f, -0.5f, 0.0f,   0.0f, 0.0f,-1.0f,  1.0f, 0.0f, 0.0f,      
-        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f,-1.0f,  1.0f, 0.0f, 0.0f,    
-        -0.5f,  0.5f, 0.0f,   0.0f, 0.0f,-1.0f,  1.0f, 0.0f, 0.0f,
+         0.5f,  0.5f, 0.0f,   1.0f, 1.0f,-1.0f,  1.0f, 0.0f, 0.0f,      
+         0.5f, -0.5f, 0.0f,   1.0f, 1.0f,-1.0f,  1.0f, 0.0f, 0.0f,      
+        -0.5f, -0.5f, 0.0f,   1.0f, 1.0f,-1.0f,  1.0f, 0.0f, 0.0f,    
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f,-1.0f,  1.0f, 0.0f, 0.0f,
 
-         0.5f,  0.5f, 1.0f,   0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f,    
-         0.5f, -0.5f, 1.0f,   0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f,    
-        -0.5f, -0.5f, 1.0f,   0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f,  
-        -0.5f,  0.5f, 1.0f,   0.0f, 0.0f, 1.0f,  1.0f, 0.0f, 0.0f,     
+         0.5f,  0.5f, 1.0f,   1.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f,    
+         0.5f, -0.5f, 1.0f,   1.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f,    
+        -0.5f, -0.5f, 1.0f,   1.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f,  
+        -0.5f,  0.5f, 1.0f,   1.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f,     
     };
     unsigned int indices[] = {
         0, 1, 3, 
@@ -169,14 +169,14 @@ int main(int argc, char *argv[])
     unsigned int lightColorLoc = glGetUniformLocation(shaders.getProgramId(),"ligthColor");
     glUniform3fv(lightColorLoc, 1, glm::value_ptr(ligthColor));
 
-    float ambientStrength = 0.8f;
+    float ambientStrength = 0.1f;
     shaders.setFloat("ambientStrength",ambientStrength);
 
-    glm::vec3 ligthPosition = glm::vec3(0.0f,0.0f,3.0f);
-    unsigned int lightPosLoc = glGetUniformLocation(shaders.getProgramId(),"ligthPosition");
-    glUniform3fv(lightPosLoc, 1, glm::value_ptr(ligthPosition));
-
     /*===================================================================================================================*/
+
+    glm::vec3 ligthPosition = glm::vec3(3.0f,1.0f,0.0f);
+
+    int ticks = 0;
 
     /* RENDER LOOP */
     while(!glfwWindowShouldClose(window))
@@ -208,6 +208,14 @@ int main(int argc, char *argv[])
         
         unsigned int cameraPositionLoc = glGetUniformLocation(shaders.getProgramId(),"camPosition");
         glUniform3fv(cameraPositionLoc, 1, glm::value_ptr(camera.getCamPosition()));
+
+        if(ticks%10 == 0)
+            ligthPosition = glm::rotate(glm::mat4(1.0f),glm::radians(25.0f),glm::vec3(0.0f,1.0f,0.0f)) * glm::vec4(ligthPosition,1.0f);
+
+        ticks++;
+
+        unsigned int lightPosLoc = glGetUniformLocation(shaders.getProgramId(),"ligthPosition");
+        glUniform3fv(lightPosLoc, 1, glm::value_ptr(ligthPosition));
 
         shaders.use();
         glBindVertexArray(VAO);
