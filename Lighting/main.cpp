@@ -175,10 +175,6 @@ int main(int argc, char *argv[])
 
     /*===================================================================================================================*/
 
-    glm::vec3 ligthPosition = glm::vec3(3.0f,1.0f,0.0f);
-
-    int ticks = 0;
-
     /* RENDER LOOP */
     while(!glfwWindowShouldClose(window))
     {
@@ -207,9 +203,8 @@ int main(int argc, char *argv[])
         glUniformMatrix4fv(clipLoc, 1, GL_FALSE, glm::value_ptr(viewToClip));
         /*===================================================================================================================*/
 
-        if(ticks%10 == 0)
+        if(static_cast<int>(glfwGetTime())%2==0)
             ligth.setPosition(glm::rotate(glm::mat4(1.0f),glm::radians(25.0f),glm::vec3(0.0f,1.0f,0.0f)) * glm::vec4(ligth.getPosition(),1.0f));
-        ticks++;
 
         ligth.setPositionUniform(shaders.getProgramId(),"ligthPosition");
 
