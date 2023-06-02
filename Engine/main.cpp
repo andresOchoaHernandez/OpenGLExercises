@@ -106,10 +106,14 @@ int main(int argc, char *argv[])
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
 
+    /* SCENE OBJECTS */
     Cube cube(glm::vec3(1.0f, 0.5f, 0.2f),glm::vec3(0.0f,0.0f,0.0f));
+    Ligth ligth(glm::vec3(1.0f,1.0f,1.0f),glm::vec3(10.0f,10.0f,-10.0f));
 
-    Shader shaders("../shaderSources/vertexShaders/cube.vs","../shaderSources/fragmentShaders/cube.fs");
-    shaders.use();
+
+    /* SHADERS */
+    Shader renderShaders("../shaderSources/vertexShaders/render.vs","../shaderSources/fragmentShaders/render.fs");
+    Shader ligthCubeShaders("../shaderSources/vertexShaders/ligthCube.vs","../shaderSources/fragmentShaders/ligthCube.fs");
 
     /* RENDER LOOP */
     while(!glfwWindowShouldClose(window))
@@ -122,17 +126,42 @@ int main(int argc, char *argv[])
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        /*========================================= TRANSFORMATIONS ================================================*/
+        /* ==============================  SCENE TRANSFORMATIONS  ======================================== */
+        /* CUBE  TO WORLD */
         glm::mat4 cubeToWorld = cube.getModelToWorldTransformationMatrix();
+
+        /* LIGTH CUBE TO WORLD */
+        glm::mat4 ligthToWorld = ligth.getModelToWorldTransformationMatrix();
+
+        /* WORLD TO VIEW  & VIEW TO CLIP*/
         glm::mat4 worldToView = camera.getWorldToViewTransformationMatrix();
         glm::mat4 viewToClip  = glm::perspective(glm::radians(camera.getZoom()), static_cast<float>(SCREEN_WIDTH)/static_cast<float>(SCREEN_HEIGTH), camera.getNearVal(), camera.getFarVal());
+        /* =============================================================================================== */
 
-        shaders.setMatrix4fv("cube",cubeToWorld);
-        shaders.setMatrix4fv("view",worldToView);
-        shaders.setMatrix4fv("clip",viewToClip);
-        /*===================================================================================================================*/
+        /*========================================= LIGTH CUBE DRAWING ====================================*/
+        ligthCubeShaders.use();
+
+        ligthCubeShaders.setMatrix4fv("model",ligthToWorld);
+        ligthCubeShaders.setMatrix4fv("view",worldToView);
+        ligthCubeShaders.setMatrix4fv("clip",viewToClip);
+
+        ligth.draw();
+        /*================================================================================================*/
+
+        /*============================== RENDERING THE WHOLE SCENE =======================================*/
+        renderShaders.use();
+
+        camera.setPositionUniform(renderShaders.getProgramId(),"cameraPosition");
+
+        renderShaders.setMatrix4fv("model",cubeToWorld);
+        renderShaders.setMatrix4fv("view",worldToView);
+        renderShaders.setMatrix4fv("clip",viewToClip);
+
+        ligth.setColorUniform(renderShaders.getProgramId(),"ligthColor");
+        ligth.setPositionUniform(renderShaders.getProgramId(),"ligthPosition");
 
         cube.draw();
+        /*===============================================================================================*/
 
         /* EVENTS AND BUFFER SWAP */
         glfwSwapBuffers(window);

@@ -7,6 +7,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <string>
+
 class Camera
 {
     /* WORLD ATTRIBUTES */
@@ -49,6 +51,8 @@ class Camera
 
         float getNearVal();
         float getFarVal();
+
+        void setPositionUniform(unsigned int programId,const std::string& name);
     
     private:
         void updateDirection();

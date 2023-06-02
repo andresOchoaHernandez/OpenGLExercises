@@ -1,6 +1,5 @@
 #version 330
 
-in vec3 normal;
 in vec3 color;
 
 void main(){

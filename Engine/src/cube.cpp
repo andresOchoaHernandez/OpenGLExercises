@@ -76,7 +76,7 @@ vertices{
     glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,sizeof(Vertex),(void*)offsetof(Vertex,normal));
     glEnableVertexAttribArray(1);
 
-    /* VERTEX NORMALS ATTRIBUTE*/
+    /* VERTEX COLORS ATTRIBUTE*/
     glVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE,sizeof(Vertex),(void*)offsetof(Vertex,color));
     glEnableVertexAttribArray(2);
 }

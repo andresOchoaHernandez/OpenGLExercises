@@ -87,3 +87,8 @@ float Camera::getFarVal()
 {
     return camFar;
 }
+
+void Camera::setPositionUniform(unsigned int programId,const std::string& name)
+{
+glUniform3fv(glGetUniformLocation(programId,name.c_str()), 1, glm::value_ptr(camPosition));
+}
