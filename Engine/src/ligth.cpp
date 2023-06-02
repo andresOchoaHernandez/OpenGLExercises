@@ -21,7 +21,6 @@ void Ligth::setPosition(glm::vec3 newPosition)
     ligthPosition = newPosition;
 }
 
-
 glm::mat4 Ligth::getModelToWorldTransformationMatrix()
 {
     return ligthCube.getModelToWorldTransformationMatrix();
@@ -29,4 +28,21 @@ glm::mat4 Ligth::getModelToWorldTransformationMatrix()
 void Ligth::draw()
 {
     ligthCube.draw();
+}
+
+void Ligth::move(glm::mat4 transformation)
+{
+    ligthCube.move(transformation);
+    ligthPosition = ligthCube.getPosition();
+}
+
+glm::vec3 Ligth::getPosition()
+{
+    return ligthPosition;
+}
+
+void Ligth::updatePosition(glm::vec3 newPos)
+{
+    ligthCube.updatePosition(newPos);
+    ligthPosition = ligthCube.getPosition();
 }

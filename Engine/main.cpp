@@ -108,7 +108,7 @@ int main(int argc, char *argv[])
 
     /* SCENE OBJECTS */
     Cube cube(glm::vec3(1.0f, 0.5f, 0.2f),glm::vec3(0.0f,0.0f,0.0f));
-    Ligth ligth(glm::vec3(1.0f,1.0f,1.0f),glm::vec3(10.0f,10.0f,-10.0f));
+    Ligth ligth(glm::vec3(1.0f,1.0f,1.0f),glm::vec3(10.0f,0.0f,0.0f));
 
 
     /* SHADERS */
@@ -126,6 +126,8 @@ int main(int argc, char *argv[])
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        /* MOVING LIGTH */
+        ligth.updatePosition(glm::vec3(10.0f,0.0f,sin(glfwGetTime())*5.0f));
         /* ==============================  SCENE TRANSFORMATIONS  ======================================== */
         /* CUBE  TO WORLD */
         glm::mat4 cubeToWorld = cube.getModelToWorldTransformationMatrix();

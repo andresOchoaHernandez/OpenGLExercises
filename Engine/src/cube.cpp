@@ -83,11 +83,26 @@ vertices{
 
 glm::mat4 Cube::getModelToWorldTransformationMatrix()
 {
-    return glm::rotate(glm::mat4(1.0f),glm::radians(0.0f),glm::vec3(1.0f,0.0f,0.0f)) + glm::translate(glm::mat4(1.0f),position);
+    return glm::translate(glm::mat4(1.0f),position);
 }
 
 void Cube::draw()
 {
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES,0,vertices.size());
+}
+
+void Cube::move(glm::mat4 transformation)
+{
+    position = glm::vec3(transformation*glm::vec4(position,1.0f));
+}
+
+glm::vec3 Cube::getPosition()
+{
+    return position;
+}
+
+void Cube::updatePosition(glm::vec3 newPos)
+{
+    position = newPos;
 }
