@@ -1,4 +1,4 @@
-#include <cube.hpp>
+#include <mesh.hpp>
 
 Cube::Cube(glm::vec3 color,glm::vec3 worldPosition):
 color{color},
@@ -6,7 +6,6 @@ position{worldPosition},
 vertices{
     {
         /* coordinates */    /* normals */
-        
         /* downer face */
         {{-1.0f,-1.0f,-1.0f}, {0.0f,-1.0f,0.0f}, color},     
         {{ 1.0f,-1.0f, 1.0f}, {0.0f,-1.0f,0.0f}, color},         

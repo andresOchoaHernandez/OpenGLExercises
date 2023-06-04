@@ -28,8 +28,8 @@ target_sources(
     PUBLIC  ${PROJECT_SOURCE_DIR}/include/ligth.hpp
     PRIVATE ${PROJECT_SOURCE_DIR}/src/ligth.cpp
 
-    PUBLIC  ${PROJECT_SOURCE_DIR}/include/cube.hpp
-    PRIVATE ${PROJECT_SOURCE_DIR}/src/cube.cpp
+    PUBLIC  ${PROJECT_SOURCE_DIR}/include/mesh.hpp
+    PRIVATE ${PROJECT_SOURCE_DIR}/src/mesh.cpp
 )
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/glad)

@@ -12,7 +12,7 @@
 #include <shader.hpp>
 #include <camera.hpp>
 #include <ligth.hpp>
-#include <cube.hpp>
+#include <mesh.hpp>
 
 const int SCREEN_WIDTH  = 800;
 const int SCREEN_HEIGTH = 600;
@@ -108,8 +108,7 @@ int main(int argc, char *argv[])
 
     /* SCENE OBJECTS */
     Cube cube(glm::vec3(1.0f, 0.5f, 0.2f),glm::vec3(0.0f,0.0f,0.0f));
-    Ligth ligth(glm::vec3(1.0f,1.0f,1.0f),glm::vec3(10.0f,0.0f,0.0f));
-
+    Ligth ligth(glm::vec3(1.0f,1.0f,1.0f),glm::vec3(10.0f,10.0f,10.0f));
 
     /* SHADERS */
     Shader renderShaders("../shaderSources/vertexShaders/render.vs","../shaderSources/fragmentShaders/render.fs");
@@ -126,8 +125,6 @@ int main(int argc, char *argv[])
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        /* MOVING LIGTH */
-        ligth.updatePosition(glm::vec3(10.0f,0.0f,sin(glfwGetTime())*5.0f));
         /* ==============================  SCENE TRANSFORMATIONS  ======================================== */
         /* CUBE  TO WORLD */
         glm::mat4 cubeToWorld = cube.getModelToWorldTransformationMatrix();
@@ -152,8 +149,6 @@ int main(int argc, char *argv[])
 
         /*============================== RENDERING THE WHOLE SCENE =======================================*/
         renderShaders.use();
-
-        camera.setPositionUniform(renderShaders.getProgramId(),"cameraPosition");
 
         renderShaders.setMatrix4fv("model",cubeToWorld);
         renderShaders.setMatrix4fv("view",worldToView);
