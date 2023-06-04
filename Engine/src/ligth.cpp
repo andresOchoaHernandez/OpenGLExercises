@@ -33,7 +33,7 @@ void Ligth::draw()
 void Ligth::move(glm::mat4 transformation)
 {
     ligthCube.move(transformation);
-    ligthPosition = ligthCube.getPosition();
+    ligthPosition = ligthCube.getPositionInWorld();
 }
 
 glm::vec3 Ligth::getPosition()
@@ -43,6 +43,6 @@ glm::vec3 Ligth::getPosition()
 
 void Ligth::updatePosition(glm::vec3 newPos)
 {
-    ligthCube.updatePosition(newPos);
-    ligthPosition = ligthCube.getPosition();
+    ligthCube.updatePositionInWorld(newPos);
+    ligthPosition = ligthCube.getPositionInWorld();
 }

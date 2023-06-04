@@ -4,6 +4,7 @@ in vec3 fragposition;
 in vec3 normal;
 in vec3 color;
 in vec3 ligthposition;
+in vec2 texcoords;
 
 uniform vec3 ligthColor;
 
