@@ -70,21 +70,6 @@ glm::mat4 Mesh::getModelToWorldTransformationMatrix()
     return glm::translate(glm::mat4(1.0f),positionInWorld);
 }
 
-void Mesh::move(glm::mat4 transformation)
-{
-    positionInWorld = glm::vec3(transformation*glm::vec4(positionInWorld,1.0f));
-}
-
-glm::vec3 Mesh::getPositionInWorld()
-{
-    return positionInWorld;
-}
-
-void Mesh::updatePositionInWorld(glm::vec3 newPos)
-{
-    positionInWorld = newPos;
-}
-
 void Mesh::draw()
 {
     glBindVertexArray(VAO);

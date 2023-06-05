@@ -19,16 +19,10 @@ class Ligth
 
     public:
         Ligth(glm::vec3 color,glm::vec3 position);
-
+        
         void setColorUniform(unsigned int programId,const std::string& name);
         void setPositionUniform(unsigned int programId,const std::string& name);
-
-        void setPosition(glm::vec3 newPosition);
-
+        
         glm::mat4 getModelToWorldTransformationMatrix();
         void draw();
-        
-        void move(glm::mat4 transformation);
-        glm::vec3 getPosition();
-        void updatePosition(glm::vec3 newPos);
 };

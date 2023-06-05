@@ -16,11 +16,6 @@ void Ligth::setPositionUniform(unsigned int programId,const std::string& name)
     glUniform3fv(glGetUniformLocation(programId,name.c_str()), 1, glm::value_ptr(ligthPosition)); 
 }
 
-void Ligth::setPosition(glm::vec3 newPosition)
-{
-    ligthPosition = newPosition;
-}
-
 glm::mat4 Ligth::getModelToWorldTransformationMatrix()
 {
     return ligthCube.getModelToWorldTransformationMatrix();
@@ -28,21 +23,4 @@ glm::mat4 Ligth::getModelToWorldTransformationMatrix()
 void Ligth::draw()
 {
     ligthCube.draw();
-}
-
-void Ligth::move(glm::mat4 transformation)
-{
-    ligthCube.move(transformation);
-    ligthPosition = ligthCube.getPositionInWorld();
-}
-
-glm::vec3 Ligth::getPosition()
-{
-    return ligthPosition;
-}
-
-void Ligth::updatePosition(glm::vec3 newPos)
-{
-    ligthCube.updatePositionInWorld(newPos);
-    ligthPosition = ligthCube.getPositionInWorld();
 }

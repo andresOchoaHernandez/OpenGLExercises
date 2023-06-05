@@ -46,9 +46,6 @@ class Mesh
 
         /* TRANSFORMATIONS IN WORLD */
         glm::mat4 getModelToWorldTransformationMatrix();
-        void move(glm::mat4 transformation);
-        glm::vec3 getPositionInWorld();
-        void updatePositionInWorld(glm::vec3 newPos);
 
         void draw();
 };
