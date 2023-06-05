@@ -1,5 +1,16 @@
 #version 330
 
+struct Material {
+    vec3 ambient;
+    vec3 diffuse;
+    vec3 specular;
+    float shininess;
+}; 
+  
+uniform Material material;
+
+/* ================ */
+
 in vec3 fragposition;
 in vec3 normal;
 in vec3 color;
