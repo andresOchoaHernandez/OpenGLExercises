@@ -8,15 +8,10 @@
 #include <shader.hpp>
 
 /* HANDLING INPUT */
-void processInput(GLFWwindow *window,float &alpha)
+void processInput(GLFWwindow *window)
 {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
-
-    if(glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS && alpha < 1.0)
-        alpha += 0.1;
-    if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS && alpha > 0.0)
-        alpha -= 0.1;
 }
 
 /* THIS CALLBACK FUNCTION WILL BE TRIGGERED WHEN THE USER RESIZES THE WINDOW. IT WILL SET THE NEW GL VIEWPORT */
@@ -37,7 +32,7 @@ int main(int argc, char *argv[])
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     /* CREATING A WINDOW */
-    GLFWwindow* window = glfwCreateWindow(800, 600, "HelloWindow",nullptr,nullptr);
+    GLFWwindow* window = glfwCreateWindow(800, 600, "Textures",nullptr,nullptr);
     if (window == nullptr)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -115,10 +110,10 @@ int main(int argc, char *argv[])
     glBindTexture(GL_TEXTURE_2D,texture1);
 
     /* SETTING MINIFYING AND MAGNIFYING FILTERS AND MIPMAPS */
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);	
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     stbi_set_flip_vertically_on_load(true);
    
@@ -161,31 +156,30 @@ int main(int argc, char *argv[])
     stbi_image_free(data);
     /*====================================================================================================================*/
 
-    Shader shaders("../shaderSources/vertexShaders/triangle.vs","../shaderSources/fragmentShaders/textures.fs");
+    Shader shaders("../shaderSources/vertexShaders/triangle.vs","../shaderSources/fragmentShaders/triangle.fs");
+
     shaders.use();
 
     shaders.setInt("vTexture1",0);
     shaders.setInt("vTexture2",1);
 
-    float alpha = 0.5;
-
     /* RENDER LOOP */
     while(!glfwWindowShouldClose(window))
     {
         /* INPUTS */
-        processInput(window,alpha);
+        processInput(window);
 
         /* RENDERING COMMANDS */
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        shaders.use();
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture1);
+
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
-        shaders.setFloat("alpha",alpha);
 
-        shaders.use();
         glBindVertexArray(VAO);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
