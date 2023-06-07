@@ -56,55 +56,22 @@ int main(int argc, char *argv[])
 
     glViewport(0, 0, 800, 600);
 
-    glEnable(GL_DEPTH_TEST);
-
     /* REGISTERING CALLBACK */
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     /*============================================= SETTING UP THE RECTANGLE =============================================*/
     float vertices[] = {
-       -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-        0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-       -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-       -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
-       -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-       -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-       -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
-       -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-       -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-       -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-       -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-       -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-       -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
-       -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-       -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-       -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-
-       -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-       -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-       -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+        /* positions */       /* colors */         /* texture coords */ 
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, 
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f       
     };
+    unsigned int indices[] = {
+        0, 1, 3,   /* first triangle  */
+        1, 2, 3,   /* second triangle */
+    };
+
     /* VERTEX ARRAY OBJECT */
     unsigned int VAO;
     glGenVertexArrays(1, &VAO);
@@ -116,15 +83,26 @@ int main(int argc, char *argv[])
     glBindBuffer(GL_ARRAY_BUFFER,VBO);
     glBufferData(GL_ARRAY_BUFFER,sizeof(vertices),vertices,GL_STATIC_DRAW);
 
+    /* ELEMENT BUFFER OBJECT */
+    unsigned int EBO;
+    glGenBuffers(1, &EBO);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
     /* PROPERTIES */
 
     /* VERTEX COORDS */
-    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,5*sizeof(float),(void*)0);
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,8*sizeof(float),(void*)0);
     glEnableVertexAttribArray(0);
 
-    /* TEXTURE COORDINATES */
-    glVertexAttribPointer(1,2,GL_FLOAT,GL_FALSE,5*sizeof(float),(void*)(3*sizeof(float)));
+    /* VERTEX COLORS */
+    glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,8*sizeof(float),(void*)(3*sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    /* TEXTURE COORDINATES */
+    glVertexAttribPointer(2,2,GL_FLOAT,GL_FALSE,8*sizeof(float),(void*)(6*sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     /*===================================================================================================================*/
 
@@ -189,19 +167,6 @@ int main(int argc, char *argv[])
     shaders.setInt("vTexture1",0);
     shaders.setInt("vTexture2",1);
 
-    glm::vec3 cubePositions[] = {
-        glm::vec3( 0.0f,  0.0f,  0.0f), 
-        glm::vec3( 2.0f,  5.0f, -15.0f), 
-        glm::vec3(-1.5f, -2.2f, -2.5f),  
-        glm::vec3(-3.8f, -2.0f, -12.3f),  
-        glm::vec3( 2.4f, -0.4f, -3.5f),  
-        glm::vec3(-1.7f,  3.0f, -7.5f),  
-        glm::vec3( 1.3f, -2.0f, -2.5f),  
-        glm::vec3( 1.5f,  2.0f, -2.5f), 
-        glm::vec3( 1.5f,  0.2f, -1.5f), 
-        glm::vec3(-1.3f,  1.0f, -1.5f)  
-    };
-
     /* RENDER LOOP */
     while(!glfwWindowShouldClose(window))
     {
@@ -210,7 +175,7 @@ int main(int argc, char *argv[])
 
         /* RENDERING COMMANDS */
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT);
 
         shaders.use();
         glActiveTexture(GL_TEXTURE0);
@@ -221,36 +186,12 @@ int main(int argc, char *argv[])
 
         glBindVertexArray(VAO);
 
-        /* ========================================================= TRANSFORMATIONS ======================================== */
-        glm::mat4 worldToView  = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f));
-        glm::mat4 viewToClip   = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+        /* DEFINING TRANSFORMATION */
+        glm::mat4 transformation = glm::translate(glm::rotate(glm::mat4(1.0f),(float)glfwGetTime()*glm::radians(30.0f),glm::vec3(0.0f,0.0f,1.0f)),glm::vec3(0.5f, -0.5f, 0.0f));
+        unsigned int transformLoc = glGetUniformLocation(shaders.getProgramId(),"transformation");
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transformation));
 
-        int viewLoc = glGetUniformLocation(shaders.getProgramId(),"view");
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(worldToView));
-
-        int clipLoc = glGetUniformLocation(shaders.getProgramId(),"clip");
-        glUniformMatrix4fv(clipLoc, 1, GL_FALSE, glm::value_ptr(viewToClip));
-
-        /*====================================================================================================================*/
-
-        for(size_t i = 0; i < 10; i++)
-        {
-            glm::mat4 modelToWorld;
-
-            if( i % 3 == 0)
-            {
-                modelToWorld = glm::rotate(glm::translate(glm::mat4(1.0f),cubePositions[i]), (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(1.0f, 0.3f, 0.5f));
-            }
-            else
-            {
-                modelToWorld = glm::rotate(glm::translate(glm::mat4(1.0f),cubePositions[i]), glm::radians((float)i*20.0f), glm::vec3(1.0f, 0.3f, 0.5f));
-            }
-
-            int modelLoc = glGetUniformLocation(shaders.getProgramId(),"model");
-            glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelToWorld));
-
-            glDrawArrays(GL_TRIANGLES, 0, 36);
-        }
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         /* EVENTS AND BUFFER SWAP */
         glfwSwapBuffers(window);
@@ -259,6 +200,7 @@ int main(int argc, char *argv[])
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
 
     glfwTerminate();
     return 0;
