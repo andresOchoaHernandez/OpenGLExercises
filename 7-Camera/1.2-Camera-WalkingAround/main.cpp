@@ -20,6 +20,17 @@ void processInput(GLFWwindow *window)
 {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+    const float cameraSpeed = 0.05f;
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+        cameraPos += cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        cameraPos -= cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+
 }
 
 /* THIS CALLBACK FUNCTION WILL BE TRIGGERED WHEN THE USER RESIZES THE WINDOW. IT WILL SET THE NEW GL VIEWPORT */
@@ -226,7 +237,7 @@ int main(int argc, char *argv[])
         glBindVertexArray(VAO);
 
         /*=============================================== CAMERA CALCULATIONS ================================================*/
-        glm::mat4 worldToView  =  glm::lookAt(glm::vec3(sin(glfwGetTime()) * 10.0f, 0.0,cos(glfwGetTime()) * 10.0f), glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0, 1.0, 0.0));
+        glm::mat4 worldToView = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
         int viewLoc = glGetUniformLocation(shaders.getProgramId(),"view");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(worldToView));
