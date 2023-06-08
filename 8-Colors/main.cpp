@@ -11,18 +11,18 @@
 
 #include <shader.hpp>
 #include <camera.hpp>
-#include <ligth.hpp>
 
-Camera camera = Camera();
+const int SCREEN_WIDTH  = 800;
+const int SCREEN_HEIGTH = 600;
 
-bool firstMouse = true;
-float lastX = 400, lastY = 300;
+Camera camera;
 
-/* HANDLING KEYBOARD INPUT */
+/* HANDLING INPUT */
 void processInput(GLFWwindow *window)
 {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.moveForward();
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -34,6 +34,9 @@ void processInput(GLFWwindow *window)
 }
 
 /* HANDLING MOUSE INPUT */
+bool firstMouse = true;
+float lastX = SCREEN_WIDTH/2, lastY = SCREEN_HEIGTH/2;
+
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
     if (firstMouse)
@@ -49,7 +52,12 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     lastY = ypos;
 
     camera.updatePitchAndYaw(xoffset,yoffset);
-}  
+}
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+    camera.updateZoom(yoffset);
+}
 
 /* THIS CALLBACK FUNCTION WILL BE TRIGGERED WHEN THE USER RESIZES THE WINDOW. IT WILL SET THE NEW GL VIEWPORT */
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -69,7 +77,7 @@ int main(int argc, char *argv[])
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     /* CREATING A WINDOW */
-    GLFWwindow* window = glfwCreateWindow(800, 600, "HelloWindow",nullptr,nullptr);
+    GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGTH, "Colors",nullptr,nullptr);
     if (window == nullptr)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -87,51 +95,59 @@ int main(int argc, char *argv[])
         return -1;
     }
 
-    /* DISABLE CURSOR AND CAPTURE ITS MOVEMENT */
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    glViewport(0, 0, 800, 600);
+    glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGTH);
+
+    glEnable(GL_DEPTH_TEST);
 
     /* REGISTERING CALLBACKS */
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-    glfwSetCursorPosCallback(window, mouse_callback); 
+    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetScrollCallback(window, scroll_callback);
     /*============================================= SETTING UP THE RECTANGLE =============================================*/
     float vertices[] = {
-        /* positions */       /* normals */      /* colors */   
-         0.5f,  0.5f, 0.0f,   1.0f, 1.0f,-1.0f,  1.0f, 0.0f, 0.0f,      
-         0.5f, -0.5f, 0.0f,   1.0f, 1.0f,-1.0f,  1.0f, 0.0f, 0.0f,      
-        -0.5f, -0.5f, 0.0f,   1.0f, 1.0f,-1.0f,  1.0f, 0.0f, 0.0f,    
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f,-1.0f,  1.0f, 0.0f, 0.0f,
-
-         0.5f,  0.5f, 1.0f,   1.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f,    
-         0.5f, -0.5f, 1.0f,   1.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f,    
-        -0.5f, -0.5f, 1.0f,   1.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f,  
-        -0.5f,  0.5f, 1.0f,   1.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f,     
+        -1.0f,-1.0f,-1.0f,  0.0f,-1.0f, 0.0f,   
+         1.0f,-1.0f, 1.0f,  0.0f,-1.0f, 0.0f,         
+         1.0f,-1.0f,-1.0f,  0.0f,-1.0f, 0.0f,       
+        -1.0f,-1.0f, 1.0f,  0.0f,-1.0f, 0.0f,          
+         1.0f,-1.0f, 1.0f,  0.0f,-1.0f, 0.0f,              
+        -1.0f,-1.0f,-1.0f,  0.0f,-1.0f, 0.0f,
+         1.0f, 1.0f,-1.0f,  0.0f, 1.0f, 0.0f,
+         1.0f, 1.0f, 1.0f,  0.0f, 1.0f, 0.0f,
+        -1.0f, 1.0f,-1.0f,  0.0f, 1.0f, 0.0f,
+        -1.0f, 1.0f,-1.0f,  0.0f, 1.0f, 0.0f,
+         1.0f, 1.0f, 1.0f,  0.0f, 1.0f, 0.0f,
+        -1.0f, 1.0f, 1.0f,  0.0f, 1.0f, 0.0f,    
+        -1.0f,-1.0f,-1.0f,  0.0f, 0.0f,-1.0f,                  
+         1.0f,-1.0f,-1.0f,  0.0f, 0.0f,-1.0f,
+         1.0f, 1.0f,-1.0f,  0.0f, 0.0f,-1.0f,         
+         1.0f, 1.0f,-1.0f,  0.0f, 0.0f,-1.0f,         
+        -1.0f, 1.0f,-1.0f,  0.0f, 0.0f,-1.0f,              
+        -1.0f,-1.0f,-1.0f,  0.0f, 0.0f,-1.0f,    
+        -1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 1.0f,               
+         1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 1.0f,
+         1.0f,-1.0f, 1.0f,  0.0f, 0.0f, 1.0f,         
+         1.0f,-1.0f, 1.0f,  0.0f, 0.0f, 1.0f,         
+        -1.0f,-1.0f, 1.0f,  0.0f, 0.0f, 1.0f,              
+        -1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 1.0f,
+         1.0f, 1.0f,-1.0f,  1.0f, 0.0f, 0.0f,
+         1.0f,-1.0f,-1.0f,  1.0f, 0.0f, 0.0f,
+         1.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f,
+         1.0f, 1.0f, 1.0f,  1.0f, 0.0f, 0.0f,
+         1.0f,-1.0f,-1.0f,  1.0f, 0.0f, 0.0f,
+         1.0f,-1.0f, 1.0f,  1.0f, 0.0f, 0.0f,
+        -1.0f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f,
+        -1.0f,-1.0f, 1.0f, -1.0f, 0.0f, 0.0f,
+        -1.0f, 1.0f,-1.0f, -1.0f, 0.0f, 0.0f,
+        -1.0f,-1.0f, 1.0f, -1.0f, 0.0f, 0.0f,
+        -1.0f,-1.0f,-1.0f, -1.0f, 0.0f, 0.0f,
+        -1.0f, 1.0f,-1.0f, -1.0f, 0.0f, 0.0f
     };
-    unsigned int indices[] = {
-        0, 1, 3, 
-        1, 2, 3,   
-
-        4, 5, 7,
-        5, 6, 7,
-
-        4, 5, 0,
-        5, 1, 0,
-
-        3, 2, 7,
-        2, 6, 7,
-
-        1, 5, 2,
-        5, 6, 2,
-
-        4, 0, 7,
-        0, 3, 7
-    };
-
     /* VERTEX ARRAY OBJECT */
-    unsigned int VAO;
-    glGenVertexArrays(1, &VAO);
-    glBindVertexArray(VAO);
+    unsigned int CUBEVAO;
+    glGenVertexArrays(1, &CUBEVAO);
+    glBindVertexArray(CUBEVAO);
 
     /* VERTEX BUFFER OBJECT */
     unsigned int VBO;
@@ -139,87 +155,81 @@ int main(int argc, char *argv[])
     glBindBuffer(GL_ARRAY_BUFFER,VBO);
     glBufferData(GL_ARRAY_BUFFER,sizeof(vertices),vertices,GL_STATIC_DRAW);
 
-    /* ELEMENT BUFFER OBJECT */
-    unsigned int EBO;
-    glGenBuffers(1, &EBO);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
     /* PROPERTIES */
 
     /* VERTEX COORDS */
-    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,9*sizeof(float),(void*)0);
+    glVertexAttribPointer(0,3,GL_FLOAT,GL_FALSE,6*sizeof(float),(void*)0);
     glEnableVertexAttribArray(0);
 
     /* VERTEX NORMALS */
-    glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,9*sizeof(float),(void*)(3*sizeof(float)));
+    glVertexAttribPointer(1,3,GL_FLOAT,GL_FALSE,6*sizeof(float),(void*)(3*sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    /* VERTEX COLORS */
-    glVertexAttribPointer(2,3,GL_FLOAT,GL_FALSE,9*sizeof(float),(void*)(6*sizeof(float)));
-    glEnableVertexAttribArray(2);
 
-    /*===================================================================================================================*/
-    Shader shaders("../shaderSources/vertexShaders/triangle.vs","../shaderSources/fragmentShaders/textures.fs");
-    shaders.use();
+    unsigned int LIGTHVAO;
+    glGenVertexArrays(1, &LIGTHVAO);
+    glBindVertexArray(LIGTHVAO);
 
-    /*================================================== LIGTH ==========================================================*/
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
     
-    Ligth ligth(glm::vec3(1.0f,1.0f,1.0f),glm::vec3(3.0f,1.0f,0.0f));
-
-    ligth.setColorUniform(shaders.getProgramId(),"ligthColor");
-
-    float ambientStrength = 0.1f;
-    shaders.setFloat("ambientStrength",ambientStrength);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
 
     /*===================================================================================================================*/
+
+    Shader cubeShaders("../shaderSources/vertexShaders/cube.vs","../shaderSources/fragmentShaders/color.fs");
+    Shader ligthShaders("../shaderSources/vertexShaders/ligthCube.vs","../shaderSources/fragmentShaders/ligthCube.fs");
+
+    glm::vec3 ligthColor    = glm::vec3(1.0f, 1.0f, 1.0f);
+    glm::vec3 ligthPosition = glm::vec3(3.0f,3.0f,-3.0f);
+
+    glm::vec3 cubeColor  = glm::vec3(1.0f, 0.5f, 0.2f); 
 
     /* RENDER LOOP */
     while(!glfwWindowShouldClose(window))
     {
         /* INPUTS */
         processInput(window);
-        
+
         /* RENDERING COMMANDS */
-        glEnable(GL_DEPTH_TEST); 
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
-        /*========================================= CAMERA & TRANSFORMATIONS ================================================*/
-        glm::mat4 modelToWorld = glm::rotate(glm::mat4(1.0f),glm::radians(0.0f),glm::vec3(1.0f,0.0f,0.0f)) + glm::translate(glm::mat4(1.0f),glm::vec3(0.0f,0.0f,0.f));
 
-        unsigned int modelLoc = glGetUniformLocation(shaders.getProgramId(),"model");
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(modelToWorld));
-
+        glBindVertexArray(CUBEVAO);
+        cubeShaders.use();
+        cubeShaders.setVector3f("cubeColor",cubeColor);
+        cubeShaders.setVector3f("ligthColor",ligthColor);
+        /* ========================================================= TRANSFORMATIONS ======================================== */
+        glm::mat4 cubeToWorld = glm::mat4(1.0f);
         glm::mat4 worldToView = camera.getWorldToViewTransformationMatrix();
+        glm::mat4 viewToClip   = glm::perspective(glm::radians(camera.getZoom()), static_cast<float>(SCREEN_WIDTH)/static_cast<float>(SCREEN_HEIGTH), camera.getNearVal(), camera.getFarVal());
 
-        unsigned int worldLoc = glGetUniformLocation(shaders.getProgramId(),"view");
-        glUniformMatrix4fv(worldLoc, 1, GL_FALSE, glm::value_ptr(worldToView));
+        cubeShaders.setMatrix4f("model",cubeToWorld);
+        cubeShaders.setMatrix4f("view",worldToView);
+        cubeShaders.setMatrix4f("clip",viewToClip);
+        /*====================================================================================================================*/
 
-        glm::mat4 viewToClip   = glm::perspective(glm::radians(45.0f), 800.0f/600.0f, 0.1f, 100.0f);
+        glDrawArrays(GL_TRIANGLES,0,36);
 
-        unsigned int clipLoc = glGetUniformLocation(shaders.getProgramId(),"clip");
-        glUniformMatrix4fv(clipLoc, 1, GL_FALSE, glm::value_ptr(viewToClip));
-        /*===================================================================================================================*/
+        glBindVertexArray(LIGTHVAO);
+        ligthShaders.use();
+        ligthShaders.setVector3f("ligthColor",ligthColor);
 
-        if(static_cast<int>(glfwGetTime())%2==0)
-            ligth.setPosition(glm::rotate(glm::mat4(1.0f),glm::radians(25.0f),glm::vec3(0.0f,1.0f,0.0f)) * glm::vec4(ligth.getPosition(),1.0f));
+        glm::mat4 ligthCubeToWorld = glm::translate(glm::mat4(1.0f),ligthPosition);
 
-        ligth.setPositionUniform(shaders.getProgramId(),"ligthPosition");
-
-        shaders.use();
-        glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES,36, GL_UNSIGNED_INT, 0);
+        ligthShaders.setMatrix4f("model",ligthCubeToWorld);
+        ligthShaders.setMatrix4f("view",worldToView);
+        ligthShaders.setMatrix4f("clip",viewToClip);
+        glDrawArrays(GL_TRIANGLES,0,36);
 
         /* EVENTS AND BUFFER SWAP */
         glfwSwapBuffers(window);
         glfwPollEvents();    
     }
 
-    glDeleteVertexArrays(1, &VAO);
+    glDeleteVertexArrays(1, &CUBEVAO);
+    glDeleteVertexArrays(1, &LIGTHVAO);
     glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
 
     glfwTerminate();
     return 0;

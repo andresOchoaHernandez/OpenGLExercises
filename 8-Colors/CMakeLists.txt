@@ -1,4 +1,4 @@
-project(Lighting)
+project(Colors)
 
 cmake_minimum_required(VERSION 3.8.2)
 
@@ -9,28 +9,25 @@ IF(NOT OPENGL_FOUND)
     MESSAGE("ERROR: OpenGL not found")
 ENDIF(NOT OPENGL_FOUND)
 
-ADD_EXECUTABLE(lighting ${PROJECT_SOURCE_DIR}/main.cpp)
+ADD_EXECUTABLE(colors ${PROJECT_SOURCE_DIR}/main.cpp)
 
 target_include_directories(
-    lighting
+    colors
     PUBLIC  ${PROJECT_SOURCE_DIR}/include
     PRIVATE ${PROJECT_SOURCE_DIR}/src
 )
 
 target_sources(
-    lighting
+    colors
     PUBLIC  ${PROJECT_SOURCE_DIR}/include/shader.hpp
     PRIVATE ${PROJECT_SOURCE_DIR}/src/shader.cpp
 
     PUBLIC  ${PROJECT_SOURCE_DIR}/include/camera.hpp
     PRIVATE ${PROJECT_SOURCE_DIR}/src/camera.cpp
-
-    PUBLIC  ${PROJECT_SOURCE_DIR}/include/ligth.hpp
-    PRIVATE ${PROJECT_SOURCE_DIR}/src/ligth.cpp
 )
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/glad)
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/stb_image)
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/glm)
 
-TARGET_LINK_LIBRARIES(lighting glfw glad stb_image glm::glm)
+TARGET_LINK_LIBRARIES(colors glfw glad stb_image glm::glm)
