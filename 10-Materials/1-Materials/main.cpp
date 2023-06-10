@@ -180,16 +180,8 @@ int main(int argc, char *argv[])
     Shader renderShaders("../shaderSources/vertexShaders/scene.vs","../shaderSources/fragmentShaders/phongligthting.fs");
     Shader ligthShaders("../shaderSources/vertexShaders/ligthCube.vs","../shaderSources/fragmentShaders/ligthCube.fs");
 
-    renderShaders.use();
-
     /* LIGTH PROPERTIES */
-    glm::vec3 ligthPosition = glm::vec3(3.0f,3.0f,-3.0f);
-
-    /* CUBE MATERIAL PROPERTIES */
-    renderShaders.setVector3f("material.ambient",glm::vec3(1.0f,0.5f,0.31f));
-    renderShaders.setVector3f("material.diffuse",glm::vec3(1.0f,0.5f,0.31f));
-    renderShaders.setVector3f("material.specular",glm::vec3(0.5f,0.5f,0.5f));
-    renderShaders.setFloat   ("material.shininess",32.0f);
+    glm::vec3 ligthPosition = glm::vec3(3.0f, 3.0f, -3.0f);
 
     /* RENDER LOOP */
     while(!glfwWindowShouldClose(window))
@@ -201,6 +193,8 @@ int main(int argc, char *argv[])
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        renderShaders.use();
+
         glm::vec3 ligthColor;
         ligthColor.x = static_cast<float>(sin(glfwGetTime() * 2.0));
         ligthColor.y = static_cast<float>(sin(glfwGetTime() * 0.7));
@@ -209,13 +203,18 @@ int main(int argc, char *argv[])
         glm::vec3 diffuseColor = ligthColor   * glm::vec3(0.5f);
         glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f);
         
+        renderShaders.setVector3f("ligthPos",ligthPosition);
         renderShaders.setVector3f("ligth.ambient",  ambientColor);
         renderShaders.setVector3f("ligth.diffuse",  diffuseColor);
         renderShaders.setVector3f("ligth.specular", glm::vec3(1.0f, 1.0f, 1.0f));
 
+        /* CUBE MATERIAL PROPERTIES */
+        renderShaders.setVector3f("material.ambient",glm::vec3(1.0f,0.5f,0.31f));
+        renderShaders.setVector3f("material.diffuse",glm::vec3(1.0f,0.5f,0.31f));
+        renderShaders.setVector3f("material.specular",glm::vec3(0.5f,0.5f,0.5f));
+        renderShaders.setFloat   ("material.shininess",32.0f);
+
         glBindVertexArray(CUBEVAO);
-        renderShaders.use();
-        renderShaders.setVector3f("ligthPos",ligthPosition);
         /* ========================================================= TRANSFORMATIONS ======================================== */
         glm::mat4 cubeToWorld = glm::mat4(1.0f);
         glm::mat4 worldToView = camera.getWorldToViewTransformationMatrix();
@@ -232,7 +231,7 @@ int main(int argc, char *argv[])
         ligthShaders.use();
         ligthShaders.setVector3f("ligthColor",ligthColor);
 
-        glm::mat4 ligthCubeToWorld = glm::scale(glm::translate(glm::mat4(1.0f),ligthPosition),glm::vec3(0.2f));
+        glm::mat4 ligthCubeToWorld = glm::scale(glm::translate(glm::mat4(1.0f),ligthPosition),glm::vec3(0.8f));
 
         ligthShaders.setMatrix4f("model",ligthCubeToWorld);
         ligthShaders.setMatrix4f("view",worldToView);
