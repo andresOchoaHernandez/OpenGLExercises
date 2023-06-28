@@ -246,9 +246,6 @@ int main(int argc, char *argv[])
     
     Shader renderShaders("../shaderSources/vertexShaders/scene.vs","../shaderSources/fragmentShaders/phongligthting.fs");
 
-    /* LIGTH PROPERTIES */
-    glm::vec3 directionalLigth = glm::vec3(-0.2f,-1.0f,-0.3f);
-
     renderShaders.use();
 
     renderShaders.setInt("material.diffuse",0);
@@ -280,7 +277,7 @@ int main(int argc, char *argv[])
         renderShaders.use();
         
         /* LIGHT PROPERTIES */
-        renderShaders.setVector3f("directionalLigth",directionalLigth);
+        renderShaders.setVector3f("directionalLigth",glm::vec3(-0.2f,-1.0f,-0.3f));
         renderShaders.setVector3f("ligth.ambient", glm::vec3(0.2f,0.2f,0.2f));
         renderShaders.setVector3f("ligth.diffuse", glm::vec3(0.5f,0.5f,0.5f));  
         renderShaders.setVector3f("ligth.specular",glm::vec3(1.0f, 1.0f, 1.0f));
