@@ -35,5 +35,6 @@ target_sources(
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/glad)
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/stb_image)
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/glm)
+add_subdirectory(${PROJECT_SOURCE_DIR}/lib/assimp)
 
-TARGET_LINK_LIBRARIES(model glfw glad stb_image glm::glm)
+TARGET_LINK_LIBRARIES(model glfw glad stb_image glm::glm assimp)
