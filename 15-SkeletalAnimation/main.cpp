@@ -113,23 +113,29 @@ int main(int argc, char *argv[])
     stbi_set_flip_vertically_on_load(true);
 
     Shader minotaurShader("../shaderSources/vertexShaders/minotaur.vs", "../shaderSources/fragmentShaders/minotaur.fs");
-    Model minotaur("../resources/minotaur/modified.fbx");
+    Model minotaur("../resources/minotaur/Minotaur@Jump.FBX");
 
     /* DEBUG */
 
     std::vector<Mesh> meshes = minotaur.getMeshes();
 
+    float maxX = -1.0f;
+    float maxY = -1.0f;
+    float maxZ = -1.0f;
+
     for(int i = 0; i < meshes.size(); i++)
     {
-        std::vector<Texture> textures = meshes[i].getTextures();
+        std::vector<Vertex> v = meshes[i].getVertices();
 
-        for(int j = 0; j < textures.size(); j++)
+        for(int j = 0; j < v.size(); j++)
         {
-            std::cout << textures[j].id << std::endl;
-            std::cout << textures[j].type << std::endl;
-            std::cout << textures[j].path << std::endl;
+            if(v[j].position.x > maxX) maxX = v[j].position.x;
+            if(v[j].position.y > maxY) maxY = v[j].position.y;
+            if(v[j].position.z > maxZ) maxZ = v[j].position.z; 
         }
     }
+
+    std::cout << maxX << " " << maxY << " " << maxZ << std::endl;
 
     /* RENDER LOOP */
     while(!glfwWindowShouldClose(window))
@@ -138,12 +144,12 @@ int main(int argc, char *argv[])
         processInput(window);
 
         /* RENDERING COMMANDS */
-        glClearColor(0.5f, 0.3f, 4.0f, 0.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         minotaurShader.use();
 
-        glm::mat4 model = glm::mat4(1.0f);
+        glm::mat4 model = glm::scale(glm::translate(glm::mat4(1.0f),glm::vec3(0.0f,-20.0f,0.0f)),glm::vec3(0.2f));
         glm::mat4 view = camera.getWorldToViewTransformationMatrix();
         glm::mat4 clip = glm::perspective(glm::radians(camera.getZoom()), (float)SCREEN_WIDTH/ (float)SCREEN_HEIGTH,camera.getNearVal(),camera.getFarVal());
 
