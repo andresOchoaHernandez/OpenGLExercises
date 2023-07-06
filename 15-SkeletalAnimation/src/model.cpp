@@ -38,6 +38,8 @@ void Model::loadModel(std::string path)
         return;
     }
 
+    assimpScene = scene;
+
     directory = path.substr(0, path.find_last_of('/'));
     
     /* INIT THE TRANSFORM MATRICES */
@@ -297,7 +299,6 @@ unsigned int Model::TextureFromFile(const char *path, const std::string &directo
 glm::mat4 assimpMat4toGlm(const aiMatrix4x4& mat)
 {
     /* GLM COLUMN MAJOR vs ASSIMP ROW MAJOR */
-
     glm::mat4 result;
     result[0] = glm::vec4(mat[0][0], mat[1][0], mat[2][0], mat[3][0]); /* FIRST COLUMN  */
     result[1] = glm::vec4(mat[0][1], mat[1][1], mat[2][1], mat[3][1]); /* SECOND COLUMN */
@@ -307,7 +308,163 @@ glm::mat4 assimpMat4toGlm(const aiMatrix4x4& mat)
     return result; 
 }
 
-std::vector<Mesh> Model::getMeshes()
+glm::mat4 assimpMat4toGlm(const aiMatrix3x3& mat)
 {
-    return meshes;
+    glm::mat4 result;
+    result[0] = glm::vec4(mat[0][0], mat[1][0], mat[2][0], mat[3][0]);
+    result[1] = glm::vec4(mat[0][1], mat[1][1], mat[2][1], mat[3][1]);
+    result[2] = glm::vec4(mat[0][2], mat[1][2], mat[2][2], mat[3][2]);
+    result[3] = glm::vec4(0.0f,0.0f,0.0f,0.0f);                       
+
+    return result; 
+}
+
+void Model::boneTransform(float time, std::vector<glm::mat4>& ts)
+{
+    float ticksPerSecond = assimpScene->mAnimations[0]->mTicksPerSecond;
+    float timeInTicks = time * ticksPerSecond;
+    float animationTime = fmod(timeInTicks,assimpScene->mAnimations[0]->mDuration);
+
+    readNodeHierarchy(animationTime,assimpScene->mRootNode,glm::mat4(1.0f));
+
+    ts.resize(numberOfBones);
+
+    for(unsigned int i = 0; i < numberOfBones; i++)
+    {
+        ts[i] = bones[i].finalTransformation;
+    }
+}
+
+void Model::readNodeHierarchy(float animationTime, const aiNode* node, const glm::mat4& parentTransform)
+{
+	glm::mat4 identityTest = glm::mat4(1.0f);
+
+	std::string nodeName(node->mName.data);
+
+	const aiAnimation* animation = assimpScene->mAnimations[0];
+
+    glm::mat4 nodeTransformation = assimpMat4toGlm(node->mTransformation);
+
+	const aiNodeAnim* nodeAnim = nullptr;
+
+	for (unsigned i = 0; i < animation->mNumChannels; i++) {
+		const aiNodeAnim* nodeAnimationIndex = animation->mChannels[i];
+
+		if (std::string(nodeAnimationIndex->mNodeName.data) == nodeName) {
+			nodeAnim = nodeAnimationIndex;
+		} 
+	}
+
+	if (nodeAnim) 
+    {
+		aiQuaternion rotationQuaternion;
+        calculateInterpolatedRotation(rotationQuaternion,animationTime,nodeAnim);        
+		glm::mat4 rotationMatrix = assimpMat4toGlm(rotationQuaternion.GetMatrix());
+		
+		aiVector3D translation;
+		calculateInterpolatedTranslation(translation,animationTime,nodeAnim);
+
+		glm::mat4 translationMatrix = glm::translate(rotationMatrix,glm::vec3(translation.x,translation.y,translation.z));
+
+		nodeTransformation = translationMatrix;
+	}
+	
+	glm::mat4 globalTransf = parentTransform * nodeTransformation;
+	
+	if (boneMapping.find(nodeName) != boneMapping.end()) {
+		unsigned int boneIndex = boneMapping[nodeName];
+		bones[boneIndex].finalTransformation = globalInverseTransformation  * globalTransf * bones[boneIndex].meshToBone;
+	}
+
+	for (unsigned i = 0; i < node->mNumChildren; i++) {
+		readNodeHierarchy(animationTime, node->mChildren[i], globalTransf);
+	}
+}
+
+void Model::calculateInterpolatedRotation(aiQuaternion& out, float animationTime, const aiNodeAnim* nodeAnim)
+{
+	// we need at least two values to interpolate...
+	if (nodeAnim->mNumRotationKeys == 1) {
+		out = nodeAnim->mRotationKeys[0].mValue;
+		return;
+	}
+	// Obtain the current rotation keyframe. 
+	unsigned int rotationIndex = findRotation(animationTime,nodeAnim);
+
+	// Calculate the next rotation keyframe and check bounds. 
+	unsigned int nextRotationIndex = (rotationIndex + 1);
+	assert(nextRotationIndex < nodeAnim->mNumRotationKeys);
+
+	// Calculate delta time, i.e time between the two keyframes.
+	float DeltaTime = nodeAnim->mRotationKeys[nextRotationIndex].mTime - nodeAnim->mRotationKeys[rotationIndex].mTime;
+
+	// Calculate the elapsed time within the delta time.  
+	float Factor = (animationTime - (float)nodeAnim->mRotationKeys[rotationIndex].mTime) / DeltaTime;
+	//assert(Factor >= 0.0f && Factor <= 1.0f);
+
+	// Obtain the quaternions values for the current and next keyframe. 
+	const aiQuaternion& StartRotationQ = nodeAnim->mRotationKeys[rotationIndex].mValue;
+	const aiQuaternion& EndRotationQ = nodeAnim->mRotationKeys[nextRotationIndex].mValue;
+
+	// Interpolate between them using the Factor. 
+	aiQuaternion::Interpolate(out, StartRotationQ, EndRotationQ, Factor);
+
+	// Normalise and set the reference. 
+	out = out.Normalize();
+}
+
+void Model::calculateInterpolatedTranslation(aiVector3D& out, float animationTime, const aiNodeAnim* nodeAnim)
+{
+	// we need at least two values to interpolate...
+	if (nodeAnim->mNumPositionKeys == 1) {
+		out = nodeAnim->mPositionKeys[0].mValue;
+		return;
+	}
+
+	unsigned int PositionIndex = findTranslation(animationTime,nodeAnim);
+	unsigned int NextPositionIndex = (PositionIndex + 1);
+	assert(NextPositionIndex < nodeAnim->mNumPositionKeys);
+	float DeltaTime = nodeAnim->mPositionKeys[NextPositionIndex].mTime - nodeAnim->mPositionKeys[PositionIndex].mTime;
+	float Factor = (animationTime - (float)nodeAnim->mPositionKeys[PositionIndex].mTime) / DeltaTime;
+	//assert(Factor >= 0.0f && Factor <= 1.0f);
+	const aiVector3D& Start = nodeAnim->mPositionKeys[PositionIndex].mValue;
+	const aiVector3D& End = nodeAnim->mPositionKeys[NextPositionIndex].mValue;
+
+	aiVector3D Delta = End - Start;
+	out = Start + Factor * Delta;
+}
+
+unsigned int Model::findRotation(float animationTime, const aiNodeAnim* nodeAnim)
+{
+	// Check if there are rotation keyframes. 
+	assert(nodeAnim->mNumRotationKeys > 0);
+
+	// Find the rotation key just before the current animation time and return the index. 
+	for (unsigned int i = 0; i < nodeAnim->mNumRotationKeys - 1; i++) {
+		if (animationTime < (float)nodeAnim->mRotationKeys[i + 1].mTime) {
+			return i;
+		}
+	}
+	assert(0);
+
+	return 0;
+}
+
+unsigned int Model::findTranslation(float animationTime, const aiNodeAnim* nodeAnim)
+{
+	assert(nodeAnim->mNumPositionKeys > 0);
+
+	for (unsigned int i = 0; i < nodeAnim->mNumPositionKeys - 1; i++) {
+		if (animationTime < (float)nodeAnim->mPositionKeys[i + 1].mTime) {
+			return i;
+		}
+	}
+	assert(0);
+
+	return 0;
+}
+
+void Model::setBoneTransform(unsigned int index, const glm::mat4& ts,Shader& shader)
+{
+    shader.setMatrix4f("gBones["+ std::to_string(index)+"]",ts);
 }

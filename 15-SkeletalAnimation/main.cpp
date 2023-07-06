@@ -115,6 +115,8 @@ int main(int argc, char *argv[])
     Shader mechShader("../shaderSources/vertexShaders/mech.vs", "../shaderSources/fragmentShaders/mech.fs");
     Model mech("../resources/mech/mech.fbx");
 
+    double startTime = glfwGetTime();
+
     /* RENDER LOOP */
     while(!glfwWindowShouldClose(window))
     {
@@ -141,6 +143,19 @@ int main(int argc, char *argv[])
         glm::mat4 clip = glm::perspective(glm::radians(camera.getZoom()), (float)SCREEN_WIDTH/ (float)SCREEN_HEIGTH,camera.getNearVal(),camera.getFarVal());
         
         mechShader.use();
+
+        /* ==================================== ANIMATIONS ==================================== */
+        std::vector<glm::mat4> transformations;
+
+        double currentTime = glfwGetTime(); 
+
+        mech.boneTransform(currentTime - startTime,transformations);
+        for (unsigned int i = 0; i < transformations.size(); i++) 
+        {
+            mech.setBoneTransform(i,transformations[i],mechShader);
+        }
+        currentTime = startTime;
+        /* ==================================================================================== */
 
         mechShader.setMatrix4f("model",model);
         mechShader.setMatrix4f("view",view);

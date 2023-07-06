@@ -16,12 +16,21 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 clip;
 
+uniform mat4 gBones[70];
+
 void main()
 {
     vec3 ligthPos = vec3(0.0,0.0,6.0);
 
+    /* ANIMATION */
+    mat4 BoneTransform = gBones[ vBoneIds[0] ] * vBoneWeigths[0];
+	BoneTransform     += gBones[ vBoneIds[1] ] * vBoneWeigths[1];
+    BoneTransform     += gBones[ vBoneIds[2] ] * vBoneWeigths[2];
+    BoneTransform     += gBones[ vBoneIds[3] ] * vBoneWeigths[3];
+    vec4 tPos = BoneTransform * vec4(vPos, 1.0);
+    gl_Position = clip * view * model * tPos;
+
     normal = mat3(transpose(inverse(view * model)))*vNormal;
     fragposition = vec3(view * model * vec4(vPos,1.0));
     ligthPosition = vec3(view * vec4(ligthPos, 1.0));
-    gl_Position = clip * view * model * vec4(vPos,1.0);
 }
