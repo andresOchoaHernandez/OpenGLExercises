@@ -8,9 +8,9 @@ layout (location = 4) in vec3 vBitangent;
 layout (location = 5) in vec4 vBoneIds;
 layout (location = 6) in vec4 vBoneWeigths;
 
-out vec2 texCoords;
 out vec3 normal;
-out vec3 vertexPos;
+out vec3 fragposition;
+out vec3 ligthPosition;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -18,6 +18,10 @@ uniform mat4 clip;
 
 void main()
 {
-    texCoords = vTexCoords;    
-    gl_Position = clip * view * model * vec4(vPos, 1.0);
+    vec3 ligthPos = vec3(0.0,0.0,6.0);
+
+    normal = mat3(transpose(inverse(view * model)))*vNormal;
+    fragposition = vec3(view * model * vec4(vPos,1.0));
+    ligthPosition = vec3(view * vec4(ligthPos, 1.0));
+    gl_Position = clip * view * model * vec4(vPos,1.0);
 }

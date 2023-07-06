@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
     
     stbi_set_flip_vertically_on_load(true);
 
-    Shader mechShader("../shaderSources/vertexShaders/minotaur.vs", "../shaderSources/fragmentShaders/minotaur.fs");
+    Shader mechShader("../shaderSources/vertexShaders/mech.vs", "../shaderSources/fragmentShaders/mech.fs");
     Model mech("../resources/mech/mech.fbx");
 
     /* RENDER LOOP */
