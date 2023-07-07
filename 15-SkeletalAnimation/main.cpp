@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
     
     stbi_set_flip_vertically_on_load(true);
 
-    Shader mechShader("../shaderSources/vertexShaders/mech.vs", "../shaderSources/fragmentShaders/mech.fs");
+    Shader animationShader("../shaderSources/vertexShaders/animation.vs", "../shaderSources/fragmentShaders/animation.fs");
     Model mech("../resources/mech/mech.fbx");
 
     double startTime = glfwGetTime();
@@ -127,22 +127,15 @@ int main(int argc, char *argv[])
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        /* ROTATIONS */
-        glm::mat4 firstRotation  = glm::rotate(glm::mat4(1.0f),glm::radians(-180.0f),glm::vec3(0.0f,1.0f,0.0f));
-        glm::mat4 secondRotation = glm::rotate(firstRotation,glm::radians(-90.0f),glm::vec3(1.0f,0.0f,0.0f));
-        glm::mat4 thirdRotation = glm::rotate(secondRotation,glm::radians(-180.0f),glm::vec3(0.0f,0.0f,1.0f));
-
-        /* TRANSLATION */
-        glm::mat4 translation = glm::translate(thirdRotation,glm::vec3(0.0f,5.0f,-4.25f));
-
-        /* SCALING */
-        glm::mat4 scaling = glm::scale(translation,glm::vec3(0.009f));
-
-        glm::mat4 model = scaling;
+        glm::mat4 model = glm::translate(glm::scale(glm::mat4(1.0f),glm::vec3(0.1f)),glm::vec3(0.0f,-22.5f,0.0f));
         glm::mat4 view = camera.getWorldToViewTransformationMatrix();
         glm::mat4 clip = glm::perspective(glm::radians(camera.getZoom()), (float)SCREEN_WIDTH/ (float)SCREEN_HEIGTH,camera.getNearVal(),camera.getFarVal());
         
-        mechShader.use();
+        animationShader.use();
+
+        animationShader.setMatrix4f("model",model);
+        animationShader.setMatrix4f("view",view);
+        animationShader.setMatrix4f("clip",clip);
 
         /* ==================================== ANIMATIONS ==================================== */
         std::vector<glm::mat4> transformations;
@@ -152,16 +145,12 @@ int main(int argc, char *argv[])
         mech.boneTransform(currentTime - startTime,transformations);
         for (unsigned int i = 0; i < transformations.size(); i++) 
         {
-            mech.setBoneTransform(i,transformations[i],mechShader);
+            mech.setBoneTransform(i,transformations[i],animationShader);
         }
         currentTime = startTime;
         /* ==================================================================================== */
 
-        mechShader.setMatrix4f("model",model);
-        mechShader.setMatrix4f("view",view);
-        mechShader.setMatrix4f("clip",clip);
-
-        mech.Draw(mechShader);
+        mech.Draw(animationShader);
 
         /* EVENTS AND BUFFER SWAP */
         glfwSwapBuffers(window);

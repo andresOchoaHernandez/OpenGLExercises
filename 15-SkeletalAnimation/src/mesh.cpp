@@ -43,7 +43,7 @@ textures{tex}
     
     /* VERTEX BONE IDS */
     glEnableVertexAttribArray(5);
-    glVertexAttribIPointer(5, 4, GL_INT, sizeof(Vertex), (void*)offsetof(Vertex, m_BoneIDs));
+    glVertexAttribIPointer(5, 4,GL_UNSIGNED_INT, sizeof(Vertex), (void*)offsetof(Vertex, m_BoneIDs));
 
 	/* VERTEX BONE WEIGTHS */
     glEnableVertexAttribArray(6);

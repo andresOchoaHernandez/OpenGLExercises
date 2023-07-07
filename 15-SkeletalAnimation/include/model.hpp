@@ -16,11 +16,12 @@ struct Bone
 
 class Model
 {
+    Assimp::Importer import;
+    const aiScene* assimpScene;
+
     std::vector<Mesh> meshes;
     std::vector<Texture> texturesLoaded;
     std::string directory;
-
-    const aiScene* assimpScene;
 
     /* ANIMATION DATA */
     unsigned int numberOfBones;
@@ -35,7 +36,7 @@ class Model
         void Draw(Shader &shader);
 
         void boneTransform(float time, std::vector<glm::mat4>& ts); 
-        void setBoneTransform(unsigned int index, const glm::mat4& ts,Shader& shader); 
+        void setBoneTransform(unsigned int index, const glm::mat4& ts,Shader& shader);
 
     private:
 

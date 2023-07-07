@@ -16,7 +16,7 @@ struct Vertex
     glm::vec2 textureCoordinates;
     glm::vec3 tangent;
     glm::vec3 bitangent;
-	int m_BoneIDs[4];  /* BONES THAT INF. ON THIS VERTEX */
+	unsigned int m_BoneIDs[4];  /* BONES THAT INF. ON THIS VERTEX */
 	float m_Weights[4];/* BONES WEIGTHS */
 };
 

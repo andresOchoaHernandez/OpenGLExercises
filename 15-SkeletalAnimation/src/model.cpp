@@ -20,8 +20,6 @@ glm::mat4 assimpMat4toGlm(const aiMatrix4x4& mat);
 
 void Model::loadModel(std::string path)
 {
-    Assimp::Importer import;
-
     const aiScene* scene = import.ReadFile(
         path,
         aiProcess_JoinIdenticalVertices |
@@ -61,6 +59,22 @@ void Model::processNode(aiNode *node, const aiScene *scene)
     {
         processNode(node->mChildren[i],scene);
     }
+}
+
+void addBoneData(std::vector<Vertex>& vertices, unsigned int vertexIndex,unsigned int boneIndex, float weigth)
+{
+    /* INSERTING ID AND WEIGTH ON THE FIRST AVAILABLE SPOT */
+    for(unsigned int p = 0; p < 4 ; p++)
+    {
+        if (vertices[vertexIndex].m_Weights[p] == 0.0f)
+        {
+            vertices[vertexIndex].m_BoneIDs[p] = boneIndex;
+            vertices[vertexIndex].m_Weights[p] = weigth;
+            return;
+        }
+    }
+
+    assert(0);
 }
 
 Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
@@ -166,16 +180,7 @@ Mesh Model::processMesh(aiMesh *mesh, const aiScene *scene)
                 unsigned int vertexIndex = mesh->mBones[j]->mWeights[z].mVertexId;                
                 float weigth = mesh->mBones[j]->mWeights[z].mWeight;
                 
-                /* INSERTING ID AND WEIGTH ON THE FIRST AVAILABLE SPOT */
-                for(unsigned int p = 0; p < 4 ; p++)
-                {
-                    if (vertices[vertexIndex].m_Weights[p] == 0.0f)
-                    {
-                        vertices[vertexIndex].m_BoneIDs[p] = vertexIndex;
-                        vertices[vertexIndex].m_Weights[p] = weigth;
-                        break;
-                    }
-                }
+                addBoneData(vertices,vertexIndex,boneIndex,weigth);
             }
         }
     }
@@ -311,10 +316,10 @@ glm::mat4 assimpMat4toGlm(const aiMatrix4x4& mat)
 glm::mat4 assimpMat4toGlm(const aiMatrix3x3& mat)
 {
     glm::mat4 result;
-    result[0] = glm::vec4(mat[0][0], mat[1][0], mat[2][0], mat[3][0]);
-    result[1] = glm::vec4(mat[0][1], mat[1][1], mat[2][1], mat[3][1]);
-    result[2] = glm::vec4(mat[0][2], mat[1][2], mat[2][2], mat[3][2]);
-    result[3] = glm::vec4(0.0f,0.0f,0.0f,0.0f);                       
+    result[0] = glm::vec4(mat[0][0], mat[1][0], mat[2][0], 0.0f);
+    result[1] = glm::vec4(mat[0][1], mat[1][1], mat[2][1], 0.0f);
+    result[2] = glm::vec4(mat[0][2], mat[1][2], mat[2][2], 0.0f);
+    result[3] = glm::vec4(0.0f     ,      0.0f,      0.0f, 1.0f);                       
 
     return result; 
 }
