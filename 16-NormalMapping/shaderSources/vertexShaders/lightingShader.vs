@@ -10,16 +10,12 @@ layout (location = 6) in vec4  vWeights;
 
 out TangentSpace
 {
-    vec3 fragposition;
     vec3 fragmentTangentPosition;
-
     vec3 viewPosition;
-
     vec3 directionalLigthDirection;
     vec3 pointLigthPosition;
     vec3 flashLigthPosition;
     vec3 flashLigthDirection;
-    
     vec2 texCoords;
 
 } tangentSpace;
@@ -46,16 +42,12 @@ void main(){
     mat3 TBN = transpose(mat3(normalize(T - dot(T, N) * N), B, N));
 
     /* TRANSFORMING ALL RELEVANT LIGTHING DATA TO TANGENT SPACE */
-    tangentSpace.fragposition              = vec3(model * vec4(vPos,1.0));
-    tangentSpace.fragmentTangentPosition   = TBN * tangentSpace.fragposition;
-
+    tangentSpace.fragmentTangentPosition   = TBN * vec3(model * vec4(vPos,1.0));
     tangentSpace.viewPosition              = TBN * viewPos;
-
     tangentSpace.directionalLigthDirection = TBN * dirLigthDir;
     tangentSpace.pointLigthPosition        = TBN * pointLigthPos;
     tangentSpace.flashLigthPosition        = TBN * flashLigthPos;
     tangentSpace.flashLigthDirection       = TBN * flashLigthDir;
-
     tangentSpace.texCoords                 = vTexCoords;
 
     /* CALCULATING VERTEX POSITION */
