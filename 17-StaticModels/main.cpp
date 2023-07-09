@@ -148,20 +148,25 @@ int main(int argc, char *argv[])
 
         /* DIRECTIONAL LIGTH */
         normalMappingShader.setVector3f("dirLigthDir",glm::vec3(0.0f,1.0f,-1.0f));
-        normalMappingShader.setVector3f("directionalLigth.ambient", glm::vec3(0.05f));
+        normalMappingShader.setVector3f("directionalLigth.ambient", glm::vec3(0.09f));
         normalMappingShader.setVector3f("directionalLigth.diffuse", glm::vec3(0.04f));  
         normalMappingShader.setVector3f("directionalLigth.specular",glm::vec3(0.05f));
 
         /* POINT LIGTH */
         glm::vec3 pointLigthPosition = glm::vec3(4.0f,1.0f,3.0f);
+
+        pointLigthPosition = glm::vec3(glm::translate(glm::mat4(1.0f),glm::vec3(0.0f,sin(glfwGetTime())*7.0f,0.0f)) * glm::vec4(pointLigthPosition,1.0f));
+
         glm::vec3 pointLigthColor = glm::vec3(1.0f,1.0f,1.0f);
+        glm::vec3 pointLigthDiffuse = pointLigthColor * glm::vec3(0.2f);
+        glm::vec3 pointLigthAmbient = pointLigthDiffuse * glm::vec3(0.5f);
 
         normalMappingShader.setVector3f("pointLigthPos", pointLigthPosition);
         normalMappingShader.setFloat("pointLigth.constant",1.0f);
         normalMappingShader.setFloat("pointLigth.linear",0.09f);
         normalMappingShader.setFloat("pointLigth.quadratic",0.032f);
-        normalMappingShader.setVector3f("pointLigth.ambient", glm::vec3(0.05f));
-        normalMappingShader.setVector3f("pointLigth.diffuse", glm::vec3(0.8f));  
+        normalMappingShader.setVector3f("pointLigth.ambient", pointLigthAmbient);
+        normalMappingShader.setVector3f("pointLigth.diffuse", pointLigthDiffuse);  
         normalMappingShader.setVector3f("pointLigth.specular",glm::vec3(1.0f));
 
         /* SPOT LIGTH POSITION AND DIRECTION */
@@ -210,7 +215,6 @@ int main(int argc, char *argv[])
         
         wall4.Draw(normalMappingShader);
 
-
         /* LIGTH CUBE REPRESENTS POINT LIGTH */
         ligthCubeShader.use();
         model = glm::scale(glm::translate(glm::mat4(1.0f),pointLigthPosition),glm::vec3(0.5f));
@@ -219,7 +223,6 @@ int main(int argc, char *argv[])
         ligthCubeShader.setMatrix4f("clip",clip);
         ligthCubeShader.setVector3f("ligthColor",pointLigthColor);
         cube.Draw(ligthCubeShader);
-
 
         /* EVENTS AND BUFFER SWAP */
         glfwSwapBuffers(window);
