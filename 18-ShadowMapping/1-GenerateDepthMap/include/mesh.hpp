@@ -60,3 +60,10 @@ class Cube : public Mesh
     public:
         Cube();
 };
+
+class Quad : public Mesh
+{
+    public:
+        Quad();
+        void Draw(Shader& shader);
+};

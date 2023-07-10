@@ -112,10 +112,42 @@ int main(int argc, char *argv[])
     
     stbi_set_flip_vertically_on_load(true);
 
-    Shader normalMappingShader("../shaderSources/vertexShaders/lightingShader.vs","../shaderSources/fragmentShaders/lightingShader.fs");
-    Model backpack("../resources/backpack/backpack.obj");
+    /* SHADOW TEXTURE GENERATION */
+    const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
 
+    unsigned int depthMap;
+    glGenTextures(1, &depthMap);
+    glBindTexture(GL_TEXTURE_2D, depthMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT); 
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    unsigned int depthMapFBO;
+    glGenFramebuffers(1, &depthMapFBO);
+
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    Shader depthShader("../shaderSources/vertexShaders/depthShader.vs","../shaderSources/fragmentShaders/depthShader.fs");
+    Shader debugDepth("../shaderSources/vertexShaders/debugDepth.vs","../shaderSources/fragmentShaders/debugDepth.fs");
+    Quad quad;
+
+    debugDepth.use();
+    debugDepth.setInt("depthMap",0);
+
+    /* MODELS */
+    //Shader normalMappingShader("../shaderSources/vertexShaders/lightingShader.vs","../shaderSources/fragmentShaders/lightingShader.fs");
+    Model backpack("../resources/backpack/backpack.obj");
     Floor floor;
+
+    /* DIRECTIONAL LIGTH POSITION & DIRECTION */
+    glm::vec3 directionalLigthPosition  = glm::vec3(-2.0f, 4.0f, -1.0f);
+    //glm::vec3 directionalLigthDirection = glm::vec3(0.0f,1.0f,-1.0f);
 
     /* RENDER LOOP */
     while(!glfwWindowShouldClose(window))
@@ -123,10 +155,40 @@ int main(int argc, char *argv[])
         /* INPUTS */
         processInput(window);
 
-        /* RENDERING COMMANDS */
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+        /* ============== FIRST PASS: RENDER SCENE FROM LIGTH PERSPECTIVE ============== */
+        float near_plane = 1.0f, far_plane = 7.5f;
+        glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+        glm::mat4 lightView = glm::lookAt(directionalLigthPosition,glm::vec3(0.0f,0.0f,0.0f),glm::vec3(0.0f,1.0f,0.0f)); 
+        glm::mat4 lightSpaceMatrix = lightProjection * lightView; 
+
+        glm::mat4 model = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)), glm::vec3(1.0f, 1.0f, 1.0f));
+
+        depthShader.use();
+
+        depthShader.setMatrix4f("lightSpaceMatrix",lightSpaceMatrix);
+        depthShader.setMatrix4f("model",model);
+
+        glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+        glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        backpack.Draw(depthShader);
+        floor.Draw(depthShader);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        /* DEBUG DEPTH */
+        glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGTH);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        debugDepth.use();
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D,depthMap);
+        quad.Draw(debugDepth);
+
+        /* ==============       SECOND PASS: RENDER SCENE AS USUAL        ============== */
+        /*
         glm::mat4 model = glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f)), glm::vec3(1.0f, 1.0f, 1.0f));
         glm::mat4 view = camera.getWorldToViewTransformationMatrix();
         glm::mat4 clip = glm::perspective(glm::radians(camera.getZoom()), (float)SCREEN_WIDTH/ (float)SCREEN_HEIGTH,camera.getNearVal(),camera.getFarVal());
@@ -137,26 +199,25 @@ int main(int argc, char *argv[])
         normalMappingShader.setMatrix4f("view",view);
         normalMappingShader.setMatrix4f("clip",clip);
     
-        /* VIEW POSITION */
+        // VIEW POSITION 
         normalMappingShader.setVector3f("viewPos",camera.getCamPosition());
 
-        /* DIRECTIONAL LIGTH */
-        glm::vec3 directionalLigthDirection = glm::vec3(0.0f,1.0f,-1.0f);
-
+        // DIRECTIONAL LIGTH 
         normalMappingShader.setVector3f("dirLigthDir",directionalLigthDirection);
         normalMappingShader.setVector3f("directionalLigth.ambient", glm::vec3(1.0f));
         normalMappingShader.setVector3f("directionalLigth.diffuse", glm::vec3(1.0f));  
         normalMappingShader.setVector3f("directionalLigth.specular",glm::vec3(1.0f));
 
-        /* DRAW BACKPACK */
+        // DRAW BACKPACK 
         backpack.Draw(normalMappingShader);
 
-        /* DRAW FLOOR */
+        // DRAW FLOOR 
         model = glm::translate(glm::mat4(1.0f),glm::vec3(0.0f,-10.0f,0.0f));
         model = glm::scale(glm::rotate(model,glm::radians(-90.0f),glm::vec3(1.0f,0.0f,0.0f)),glm::vec3(50.0f));
         normalMappingShader.setMatrix4f("model",model);
         
         floor.Draw(normalMappingShader);
+        */
 
         /* EVENTS AND BUFFER SWAP */
         glfwSwapBuffers(window);

@@ -335,3 +335,26 @@ Mesh(
     {}
 )
 {}
+
+Quad::Quad():
+Mesh
+(
+    {
+        {glm::vec3(-1.0f,  1.0f, 0.0f),{},glm::vec2(0.0f, 1.0f)},
+        {glm::vec3(-1.0f, -1.0f, 0.0f),{},glm::vec2(0.0f, 0.0f)},
+        {glm::vec3( 1.0f,  1.0f, 0.0f),{},glm::vec2(1.0f, 1.0f)},
+        {glm::vec3( 1.0f, -1.0f, 0.0f),{},glm::vec2(1.0f, 0.0f)}
+    },
+    {},
+    {}
+)
+{}
+
+void Quad::Draw(Shader& shader)
+{
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLE_STRIP,0,vertices.size());
+    
+    glBindVertexArray(0);
+    glActiveTexture(GL_TEXTURE0);
+}
