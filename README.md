@@ -7,12 +7,18 @@ All of the tutorials where developed on Ubuntu 22.04.2 LTS
 # PACKAGES
 All used packages (GLAD, ASSIMP, GLM and STBI_IMAGE) are contained in the lib folder. Each one of them is compiled from source code as shared library via CMake.
 
+# DOWNLOAD THE REPOSITORY
+```bash
+$ sudo apt install git
+$ git clone 
+```
 # DEPENDENCIES
 In a fresh installed Ubuntu 22.04.2 distributions, you will need to install:
-* x11
 ```bash
-$ sudo apt install - y x11
+$ sudo apt install git
+$ git clone git
 ```
+then clone the repository
 # HOW TO RUN EACH PROJECT
 Navigate to the project's ```main.cpp```:
 ```bash
