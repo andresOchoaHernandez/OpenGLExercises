@@ -9,16 +9,29 @@ All used packages (GLAD, ASSIMP, GLM and STBI_IMAGE) are contained in the lib fo
 
 # DOWNLOAD THE REPOSITORY
 ```bash
-$ sudo apt install git
-$ git clone 
+$ sudo apt install git -y
+$ git clone https://github.com/andresOchoaHernandez/OpenGLExercises
 ```
 # DEPENDENCIES
 In a fresh installed Ubuntu 22.04.2 distributions, you will need to install:
+* build-essentials
 ```bash
-$ sudo apt install git
-$ git clone git
+$ sudo apt install build-essentials -y
 ```
-then clone the repository
+* cmake
+```bash
+$ sudo apt install cmake -y
+```
+* freeglut3, freeglut3-dev
+```bash
+$ sudo apt install freeglut3 -y
+$ sudo apt install freeglut3-dev -y
+```
+* libglfw3, libglfw3-dev
+```bash
+$ sudo apt install libglfw3 -y
+$ sudo apt install libglfw3-dev -y
+```
 # HOW TO RUN EACH PROJECT
 Navigate to the project's ```main.cpp```:
 ```bash
