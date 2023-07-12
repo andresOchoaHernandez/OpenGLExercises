@@ -13,7 +13,7 @@ $ sudo apt install git -y
 $ git clone https://github.com/andresOchoaHernandez/OpenGLExercises
 ```
 # DEPENDENCIES
-In a fresh installed Ubuntu 22.04.2 distributions, you will need to install:
+In a fresh installed Ubuntu 22.04.2 distribution, you will need to install:
 * build-essentials
 ```bash
 $ sudo apt install build-essentials -y
