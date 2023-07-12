@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
     Cube cube;
     Floor floor;
 
-    /* DIRECTIONAL LIGTH POSITION & DIRECTION */
+    /* DIRECTIONAL LIGTH POSITION */
     glm::vec3 ligthPosition = glm::vec3(-2.0f, 4.0f, -1.0f);
 
     /* RENDER LOOP */
