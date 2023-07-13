@@ -12,7 +12,8 @@ Sono stati modellati i diversi tipi di luce proposti nell'esercitazione 13-Multi
 * luce direzionale
 * punto luce
 * torcia
-Il punto luce inoltre è movimentato per muoversi dall'alto in basso per poter apprezzare meglio gli effetti del ligthing sullo zainetto e sui muri.
+
+Il punto luce inoltre è movimentato dall'alto in basso per poter apprezzare meglio gli effetti del ligthing sullo zainetto e sui muri.
 
 # CALCOLO LIGTHING
 Il calcolo dei diversi tipi di luce è lo stesso che è stato implementato nell'esercitazione 16-NormalMapping dove, oltre al calcolo del punto luce previsto dall'esercitazione, ho implementato anche il calcolo della luce direzionale e della torcia nel tangent space. Il codice (per quanto riguarda il fragment shader) è praticamente lo stesso dell'esercitazione 13-MultipleLigths, ma stavolta tutti i vettori che vengono passati in input alle funzioni che calcolano la luce sono nel tangent space. In particolare:
