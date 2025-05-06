@@ -1,7 +1,7 @@
 # OpenGL Exercises
 This repository contains the code for all the [OpenGL exercises](https://learnopengl.com/) required for the masters degree's graphics programming course at UniVr.
 
-# ENVIRONMENT
+# DEVELOPEMENT ENVIRONMENT
 All of the tutorials where developed on Ubuntu 22.04.2 LTS
 
 # PACKAGES
